@@ -30,7 +30,7 @@
         .dashboard-panel {
             background: rgba(255, 255, 255, 0.92);
             border: 1px solid rgba(47, 111, 104, 0.12);
-            border-radius: 1.25rem;
+            border-radius: 0.5rem;
             box-shadow: 0 18px 40px rgba(18, 39, 34, 0.08);
         }
 
@@ -43,7 +43,7 @@
             min-height: 100%;
             background: linear-gradient(180deg, #16332f 0%, #214c45 100%);
             color: #fff;
-            border-radius: 1.25rem;
+            border-radius: 0.5rem;
         }
 
         .sidebar a {
@@ -79,10 +79,29 @@
             <ul class="navbar-nav ms-auto gap-lg-2 align-items-lg-center">
                 <li class="nav-item"><a class="nav-link" href="{{ route('home') }}">Home</a></li>
                 <li class="nav-item"><a class="nav-link" href="{{ route('pets.index') }}">Pets</a></li>
-                <li class="nav-item"><a class="nav-link" href="{{ route('dashboard.user') }}">User Dashboard</a></li>
-                <li class="nav-item"><a class="nav-link" href="{{ route('dashboard.admin') }}">Admin Dashboard</a></li>
-                <li class="nav-item"><a class="btn btn-outline-success btn-sm" href="{{ route('login') }}">Login</a></li>
-                <li class="nav-item"><a class="btn btn-success btn-sm" href="{{ route('register') }}">Register</a></li>
+                @auth
+                    @if(auth()->user()->role === 'USER')
+                        <li class="nav-item"><a class="nav-link" href="{{ route('dashboard.user') }}">User Dashboard</a></li>
+                    @endif
+                    @if(in_array(auth()->user()->role, ['SHELTER_STAFF', 'ADMIN'], true))
+                        <li class="nav-item"><a class="nav-link" href="{{ route('dashboard.shelter') }}">Shelter Dashboard</a></li>
+                    @endif
+                    @if(in_array(auth()->user()->role, ['VETERINARIAN', 'ADMIN'], true))
+                        <li class="nav-item"><a class="nav-link" href="{{ route('dashboard.vet') }}">Vet Dashboard</a></li>
+                    @endif
+                    @if(auth()->user()->role === 'ADMIN')
+                        <li class="nav-item"><a class="nav-link" href="{{ route('dashboard.admin') }}">Admin Dashboard</a></li>
+                    @endif
+                    <li class="nav-item">
+                        <form action="{{ route('logout') }}" method="POST">
+                            @csrf
+                            <button class="btn btn-outline-success btn-sm">Logout</button>
+                        </form>
+                    </li>
+                @else
+                    <li class="nav-item"><a class="btn btn-outline-success btn-sm" href="{{ route('login') }}">Login</a></li>
+                    <li class="nav-item"><a class="btn btn-success btn-sm" href="{{ route('register') }}">Register</a></li>
+                @endauth
             </ul>
         </div>
     </div>
@@ -91,6 +110,11 @@
 <main class="container py-4 py-lg-5">
     @if(session('success'))
         <div class="alert alert-success border-0 shadow-sm">{{ session('success') }}</div>
+    @endif
+    @if($errors->any())
+        <div class="alert alert-danger border-0 shadow-sm">
+            {{ $errors->first() }}
+        </div>
     @endif
 
     @yield('content')

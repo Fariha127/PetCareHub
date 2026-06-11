@@ -20,14 +20,15 @@
         <div class="content-card p-4 p-lg-5">
             <div class="section-title mb-2">Welcome back</div>
             <h1 class="h3 fw-bold mb-4">Login to PetCareHub</h1>
-            <form>
+            <form action="{{ route('login.store') }}" method="POST">
+                @csrf
                 <div class="mb-3">
                     <label class="form-label">Email</label>
-                    <input type="email" class="form-control" placeholder="name@example.com">
+                    <input type="email" name="email" class="form-control" placeholder="name@example.com" value="{{ old('email') }}" required>
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Password</label>
-                    <input type="password" class="form-control" placeholder="Password">
+                    <input type="password" name="password" class="form-control" placeholder="Password" required>
                 </div>
                 <button class="btn btn-success w-100">Login</button>
             </form>
