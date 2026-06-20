@@ -7,7 +7,7 @@
             <div class="section-title">Pet Listing</div>
             <h1 class="h3 mb-0">Search, filter, and sort available pets</h1>
         </div>
-        <span class="badge badge-soft">Bootstrap cards + Oracle-ready filters</span>
+        
     </div>
 
     <form method="GET" action="{{ route('pets.index') }}" class="row g-3">

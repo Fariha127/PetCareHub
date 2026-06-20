@@ -79,7 +79,7 @@ class DatabaseSeeder extends Seeder
             'vaccination_status' => 'NOT_VACCINATED',
             'health_condition' => 'Under observation',
             'adoption_status' => 'AVAILABLE',
-            'image_path' => 'https://images.unsplash.com/photo-1450778869180-41d0601e046e?auto=format&fit=crop&w=900&q=80',
+            'image_path' => 'https://images.unsplash.com/photo-1585110396000-c9ffd4e4b308?auto=format&fit=crop&w=900&q=80',
         ]);
 
         AdoptionRequest::create([
