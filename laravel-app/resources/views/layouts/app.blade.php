@@ -66,6 +66,11 @@
             height: 180px;
             object-fit: cover;
         }
+
+        .pet-cover--face-top {
+            object-position: center 38%;
+        }
+
     </style>
 </head>
 <body>
