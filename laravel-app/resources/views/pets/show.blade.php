@@ -22,12 +22,16 @@
             </div>
 
             <hr class="my-4">
-            <form action="{{ route('adoptions.store') }}" method="POST" class="d-flex gap-2 flex-wrap">
-                @csrf
-                <input type="hidden" name="pet_id" value="{{ $pet->pet_id }}">
-                <button class="btn btn-success" @disabled($pet->adoption_status !== 'AVAILABLE')>Request Adoption</button>
+            <div class="d-flex gap-2 flex-wrap">
+                @if(auth()->check() && auth()->user()->role === 'USER')
+                    <form action="{{ route('adoptions.store') }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="pet_id" value="{{ $pet->pet_id }}">
+                        <button class="btn btn-success" @disabled($pet->adoption_status !== 'AVAILABLE')>Request Adoption</button>
+                    </form>
+                @endif
                 <a href="{{ route('pets.index') }}" class="btn btn-outline-secondary">Back to listing</a>
-            </form>
+            </div>
         </div>
     </div>
 </div>

@@ -75,7 +75,7 @@
                     <p class="text-secondary mb-3">Age: {{ $pet->age }} | Vaccination: {{ $pet->vaccination_status }}</p>
                     <div class="mt-auto d-flex gap-2">
                         <a href="{{ route('pets.show', $pet) }}" class="btn btn-outline-success btn-sm">Details</a>
-                        @if($pet->adoption_status === 'AVAILABLE')
+                        @if(auth()->check() && auth()->user()->role === 'USER' && $pet->adoption_status === 'AVAILABLE')
                             <form action="{{ route('adoptions.store') }}" method="POST">
                                 @csrf
                                 <input type="hidden" name="pet_id" value="{{ $pet->pet_id }}">
