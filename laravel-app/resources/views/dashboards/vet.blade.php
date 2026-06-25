@@ -45,9 +45,15 @@
                 <div class="col-md-4"><input name="diagnosis" class="form-control" placeholder="Diagnosis" required></div>
                 <div class="col-md-6"><input name="treatment" class="form-control" placeholder="Treatment" required></div>
                 <div class="col-md-6"><input name="prescription" class="form-control" placeholder="Prescription"></div>
-                <div class="col-md-4"><input type="date" name="vaccination_date" class="form-control"></div>
-                <div class="col-md-4"><input type="date" name="next_vaccine_date" class="form-control"></div>
-                <div class="col-md-4 d-grid"><button class="btn btn-success">Save Record</button></div>
+                <div class="col-md-4">
+                    <label for="vaccination_date" class="form-label">Vaccination date</label>
+                    <input type="date" id="vaccination_date" name="vaccination_date" class="form-control">
+                </div>
+                <div class="col-md-4">
+                    <label for="next_vaccine_date" class="form-label">Next vaccine date</label>
+                    <input type="date" id="next_vaccine_date" name="next_vaccine_date" class="form-control">
+                </div>
+                <div class="col-md-4 d-grid align-self-end"><button class="btn btn-success">Save Record</button></div>
             </form>
         </div>
 
