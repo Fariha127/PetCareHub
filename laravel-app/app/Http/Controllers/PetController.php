@@ -34,6 +34,19 @@ class PetController extends Controller
 
         return view('pets.index', [
             'pets' => $pets->paginate(12)->withQueryString(),
+            'speciesOptions' => Pet::query()
+                ->select('species')
+                ->whereNotNull('species')
+                ->distinct()
+                ->orderBy('species')
+                ->pluck('species'),
+            'breedOptions' => Pet::query()
+                ->select('breed')
+                ->whereNotNull('breed')
+                ->where('breed', '!=', '')
+                ->distinct()
+                ->orderBy('breed')
+                ->pluck('breed'),
         ]);
     }
 

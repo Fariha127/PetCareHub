@@ -15,10 +15,20 @@
             <input type="text" name="keyword" value="{{ request('keyword') }}" class="form-control" placeholder="Search by name, breed, species">
         </div>
         <div class="col-md-2">
-            <input type="text" name="species" value="{{ request('species') }}" class="form-control" placeholder="Species">
+            <select name="species" class="form-select">
+                <option value="">Species</option>
+                @foreach($speciesOptions as $species)
+                    <option value="{{ $species }}" @selected(request('species') === $species)>{{ $species }}</option>
+                @endforeach
+            </select>
         </div>
         <div class="col-md-2">
-            <input type="text" name="breed" value="{{ request('breed') }}" class="form-control" placeholder="Breed">
+            <select name="breed" class="form-select">
+                <option value="">Breed</option>
+                @foreach($breedOptions as $breed)
+                    <option value="{{ $breed }}" @selected(request('breed') === $breed)>{{ $breed }}</option>
+                @endforeach
+            </select>
         </div>
         <div class="col-md-1">
             <input type="number" name="age" value="{{ request('age') }}" class="form-control" placeholder="Age">
