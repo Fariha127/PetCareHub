@@ -56,7 +56,7 @@
     @forelse($featuredPets ?? [] as $pet)
         <div class="col-md-4">
             <div class="card content-card h-100 border-0 overflow-hidden">
-                <img src="{{ $pet->image_path ?: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=900&q=80' }}" class="card-img-top pet-cover @if($pet->pet_name === 'Bella') pet-cover--face-top @endif" alt="{{ $pet->pet_name }}">
+                <img src="{{ $pet->photo_url }}" class="card-img-top pet-cover @if($pet->pet_name === 'Bella') pet-cover--face-top @endif" alt="{{ $pet->pet_name }}">
                 <div class="card-body d-flex flex-column">
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <h3 class="h5 mb-0">{{ $pet->pet_name }}</h3>
@@ -85,7 +85,7 @@
                     'species' => 'Dog',
                     'breed' => 'Labrador Mix',
                     'adoption_status' => 'AVAILABLE',
-                    'image' => 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=900&q=80',
+                    'image' => 'https://images.unsplash.com/photo-1552053831-71594a27632d?auto=format&fit=crop&w=900&q=80',
                 ],
                 [
                     'pet_name' => 'Milo',

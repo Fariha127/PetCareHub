@@ -8,6 +8,8 @@ class AdoptionRequest extends Model
 {
     protected $primaryKey = 'request_id';
 
+    public $timestamps = false;
+
     protected $fillable = [
         'user_id',
         'pet_id',

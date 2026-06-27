@@ -65,7 +65,7 @@
     @forelse($pets as $pet)
         <div class="col-md-6 col-xl-4">
             <div class="card content-card h-100 border-0 overflow-hidden">
-                <img src="{{ $pet->image_path ?: 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=900&q=80' }}" class="card-img-top pet-cover @if($pet->pet_name === 'Bella') pet-cover--face-top @endif" alt="{{ $pet->pet_name }}">
+                <img src="{{ $pet->photo_url }}" class="card-img-top pet-cover @if($pet->pet_name === 'Bella') pet-cover--face-top @endif" alt="{{ $pet->pet_name }}">
                 <div class="card-body d-flex flex-column">
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <h2 class="h5 mb-0">{{ $pet->pet_name }}</h2>

@@ -4,7 +4,7 @@
 <div class="row g-4">
     <div class="col-lg-6">
         <div class="content-card p-3">
-            <img src="{{ $pet->image_path ?: 'https://images.unsplash.com/photo-1537151625747-768eb6cf92b4?auto=format&fit=crop&w=1200&q=80' }}" class="img-fluid rounded-4 w-100" style="height: 420px; object-fit: cover;" alt="{{ $pet->pet_name }}">
+            <img src="{{ $pet->photo_url }}" class="img-fluid rounded-4 pet-detail-cover @if($pet->pet_name === 'Bella') pet-cover--face-top @endif" alt="{{ $pet->pet_name }}">
         </div>
     </div>
     <div class="col-lg-6">
