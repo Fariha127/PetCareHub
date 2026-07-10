@@ -115,18 +115,6 @@ return [
         ],
 
         'oracle' => [
-            'driver' => 'oracle',
-            'host' => env('DB_HOST', '127.0.0.1'),
-            'port' => env('DB_PORT', '1521'),
-            'database' => env('DB_DATABASE', 'XE'),
-            'service_name' => env('DB_SERVICE_NAME', 'XE'),
-            'username' => env('DB_USERNAME', ''),
-            'password' => env('DB_PASSWORD', ''),
-            'charset' => 'AL32UTF8',
-            'prefix' => '',
-],
-
-        'oracle' => [
             'driver'         => 'oracle',
             'host'           => env('DB_HOST', '127.0.0.1'),
             'port'           => env('DB_PORT', '1521'),
