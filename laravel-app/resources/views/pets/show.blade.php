@@ -4,7 +4,7 @@
 <div class="row g-4">
     <div class="col-lg-6">
         <div class="content-card p-3">
-            <img src="{{ $pet->image_path ?: 'https://images.unsplash.com/photo-1537151625747-768eb6cf92b4?auto=format&fit=crop&w=1200&q=80' }}" class="img-fluid rounded-4" alt="{{ $pet->pet_name }}">
+            <img src="{{ $pet->photo_url }}" class="img-fluid rounded-4 pet-detail-cover @if($pet->pet_name === 'Bella') pet-cover--face-top @endif" alt="{{ $pet->pet_name }}">
         </div>
     </div>
     <div class="col-lg-6">
@@ -22,12 +22,16 @@
             </div>
 
             <hr class="my-4">
-            <form action="{{ route('adoptions.store') }}" method="POST" class="d-flex gap-2 flex-wrap">
-                @csrf
-                <input type="hidden" name="pet_id" value="{{ $pet->pet_id }}">
-                <button class="btn btn-success" @disabled($pet->adoption_status !== 'AVAILABLE')>Request Adoption</button>
+            <div class="d-flex gap-2 flex-wrap">
+                @if(auth()->check() && auth()->user()->role === 'USER')
+                    <form action="{{ route('adoptions.store') }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="pet_id" value="{{ $pet->pet_id }}">
+                        <button class="btn btn-success" @disabled($pet->adoption_status !== 'AVAILABLE')>Request Adoption</button>
+                    </form>
+                @endif
                 <a href="{{ route('pets.index') }}" class="btn btn-outline-secondary">Back to listing</a>
-            </form>
+            </div>
         </div>
     </div>
 </div>

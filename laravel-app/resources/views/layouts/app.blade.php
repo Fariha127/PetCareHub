@@ -64,8 +64,22 @@
 
         .pet-cover {
             height: 180px;
+            width: 100%;
             object-fit: cover;
         }
+
+        .pet-detail-cover {
+            aspect-ratio: 16 / 10;
+            min-height: 360px;
+            max-height: 420px;
+            width: 100%;
+            object-fit: cover;
+        }
+
+        .pet-cover--face-top {
+            object-position: center 38%;
+        }
+
     </style>
 </head>
 <body>

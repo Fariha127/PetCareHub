@@ -7,7 +7,7 @@
             <div class="section-title">Pet Listing</div>
             <h1 class="h3 mb-0">Search, filter, and sort available pets</h1>
         </div>
-        <span class="badge badge-soft">Bootstrap cards + Oracle-ready filters</span>
+        
     </div>
 
     <form method="GET" action="{{ route('pets.index') }}" class="row g-3">
@@ -15,10 +15,20 @@
             <input type="text" name="keyword" value="{{ request('keyword') }}" class="form-control" placeholder="Search by name, breed, species">
         </div>
         <div class="col-md-2">
-            <input type="text" name="species" value="{{ request('species') }}" class="form-control" placeholder="Species">
+            <select name="species" class="form-select">
+                <option value="">Species</option>
+                @foreach($speciesOptions as $species)
+                    <option value="{{ $species }}" @selected(request('species') === $species)>{{ $species }}</option>
+                @endforeach
+            </select>
         </div>
         <div class="col-md-2">
-            <input type="text" name="breed" value="{{ request('breed') }}" class="form-control" placeholder="Breed">
+            <select name="breed" class="form-select">
+                <option value="">Breed</option>
+                @foreach($breedOptions as $breed)
+                    <option value="{{ $breed }}" @selected(request('breed') === $breed)>{{ $breed }}</option>
+                @endforeach
+            </select>
         </div>
         <div class="col-md-1">
             <input type="number" name="age" value="{{ request('age') }}" class="form-control" placeholder="Age">
@@ -55,7 +65,7 @@
     @forelse($pets as $pet)
         <div class="col-md-6 col-xl-4">
             <div class="card content-card h-100 border-0 overflow-hidden">
-                <img src="{{ $pet->image_path ?: 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=900&q=80' }}" class="card-img-top pet-cover" alt="{{ $pet->pet_name }}">
+                <img src="{{ $pet->photo_url }}" class="card-img-top pet-cover @if($pet->pet_name === 'Bella') pet-cover--face-top @endif" alt="{{ $pet->pet_name }}">
                 <div class="card-body d-flex flex-column">
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <h2 class="h5 mb-0">{{ $pet->pet_name }}</h2>
@@ -65,7 +75,7 @@
                     <p class="text-secondary mb-3">Age: {{ $pet->age }} | Vaccination: {{ $pet->vaccination_status }}</p>
                     <div class="mt-auto d-flex gap-2">
                         <a href="{{ route('pets.show', $pet) }}" class="btn btn-outline-success btn-sm">Details</a>
-                        @if($pet->adoption_status === 'AVAILABLE')
+                        @if(auth()->check() && auth()->user()->role === 'USER' && $pet->adoption_status === 'AVAILABLE')
                             <form action="{{ route('adoptions.store') }}" method="POST">
                                 @csrf
                                 <input type="hidden" name="pet_id" value="{{ $pet->pet_id }}">

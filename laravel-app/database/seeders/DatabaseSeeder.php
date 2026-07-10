@@ -19,35 +19,31 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $staff = User::create([
+        $staff = User::updateOrCreate(['email' => 'staff@petcarehub.test'], [
             'full_name' => 'Shelter Staff',
-            'email' => 'staff@petcarehub.test',
             'password' => Hash::make('password'),
             'phone' => '01710000001',
             'role' => 'SHELTER_STAFF',
             'address' => 'Greenfield Shelter Office',
         ]);
 
-        $vet = User::create([
+        $vet = User::updateOrCreate(['email' => 'vet@petcarehub.test'], [
             'full_name' => 'Dr. Nadia Rahman',
-            'email' => 'vet@petcarehub.test',
             'password' => Hash::make('password'),
             'phone' => '01710000002',
             'role' => 'VETERINARIAN',
             'address' => 'PetCareHub Clinic',
         ]);
 
-        $adopter = User::create([
+        $adopter = User::updateOrCreate(['email' => 'user@petcarehub.test'], [
             'full_name' => 'Aminul Karim',
-            'email' => 'user@petcarehub.test',
             'password' => Hash::make('password'),
             'phone' => '01710000003',
             'role' => 'USER',
             'address' => 'Dhaka',
         ]);
 
-        $luna = Pet::create([
-            'pet_name' => 'Luna',
+        $luna = Pet::updateOrCreate(['pet_name' => 'Luna'], [
             'species' => 'Dog',
             'breed' => 'Labrador Mix',
             'age' => 3,
@@ -58,8 +54,7 @@ class DatabaseSeeder extends Seeder
             'image_path' => 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=900&q=80',
         ]);
 
-        $milo = Pet::create([
-            'pet_name' => 'Milo',
+        $milo = Pet::updateOrCreate(['pet_name' => 'Milo'], [
             'species' => 'Cat',
             'breed' => 'Tabby',
             'age' => 2,
@@ -70,8 +65,7 @@ class DatabaseSeeder extends Seeder
             'image_path' => 'https://images.unsplash.com/photo-1519052537078-e6302a4968d4?auto=format&fit=crop&w=900&q=80',
         ]);
 
-        Pet::create([
-            'pet_name' => 'Coco',
+        Pet::updateOrCreate(['pet_name' => 'Coco'], [
             'species' => 'Rabbit',
             'breed' => 'Mini Lop',
             'age' => 1,
@@ -79,19 +73,22 @@ class DatabaseSeeder extends Seeder
             'vaccination_status' => 'NOT_VACCINATED',
             'health_condition' => 'Under observation',
             'adoption_status' => 'AVAILABLE',
-            'image_path' => 'https://images.unsplash.com/photo-1450778869180-41d0601e046e?auto=format&fit=crop&w=900&q=80',
+            'image_path' => 'https://images.unsplash.com/photo-1585110396000-c9ffd4e4b308?auto=format&fit=crop&w=900&q=80',
         ]);
 
-        AdoptionRequest::create([
+        AdoptionRequest::firstOrCreate([
             'user_id' => $adopter->user_id,
             'pet_id' => $luna->pet_id,
+        ], [
             'request_date' => now()->subDays(2),
             'status' => 'PENDING',
         ]);
 
-        MedicalRecord::create([
+        MedicalRecord::firstOrCreate([
             'pet_id' => $milo->pet_id,
             'vet_id' => $vet->user_id,
+            'diagnosis' => 'Routine checkup',
+        ], [
             'diagnosis' => 'Routine checkup',
             'treatment' => 'General wellness care',
             'vaccination_date' => now()->subDays(15),
