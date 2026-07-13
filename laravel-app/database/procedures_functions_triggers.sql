@@ -1,6 +1,4 @@
--- PetCareHub Oracle procedures, triggers, functions and loops
 
--- 1. Adoption Status Update Trigger
 CREATE OR REPLACE TRIGGER trg_adoption_status_update
 AFTER UPDATE OF status ON adoption_requests
 FOR EACH ROW
@@ -13,7 +11,7 @@ BEGIN
 END;
 /
 
--- 2. Appointment Vet Role Verification Trigger
+
 CREATE OR REPLACE TRIGGER trg_appointment_vet_role
 BEFORE INSERT OR UPDATE OF vet_id ON veterinary_appointments
 FOR EACH ROW
@@ -30,7 +28,7 @@ BEGIN
 END;
 /
 
--- 3. Medical Record Vet Role Verification Trigger
+
 CREATE OR REPLACE TRIGGER trg_medical_record_vet_role
 BEFORE INSERT OR UPDATE OF vet_id ON medical_records
 FOR EACH ROW
@@ -47,7 +45,7 @@ BEGIN
 END;
 /
 
--- 4. Process Adoption Request Stored Procedure
+
 CREATE OR REPLACE PROCEDURE sp_process_adoption_request (
     p_request_id IN VARCHAR2,
     p_status IN VARCHAR2,
@@ -66,7 +64,7 @@ BEGIN
 END;
 /
 
--- 5. Generate Monthly Adoption Report Procedure (using SYS_REFCURSOR)
+
 CREATE OR REPLACE PROCEDURE sp_monthly_adoption_report (
     p_month IN NUMBER,
     p_year IN NUMBER,
@@ -94,7 +92,7 @@ BEGIN
 END;
 /
 
--- 6. Dashboard Metrics Retrieve Procedure
+
 CREATE OR REPLACE PROCEDURE sp_dashboard_metrics (
     p_total_pets OUT NUMBER,
     p_total_adopted OUT NUMBER,
@@ -111,7 +109,7 @@ BEGIN
 END;
 /
 
--- 7. User-Defined Function: Categorize Pet Age Group
+
 CREATE OR REPLACE FUNCTION fn_get_pet_age_group(p_age IN NUMBER)
 RETURN VARCHAR2 IS
 BEGIN
@@ -127,7 +125,7 @@ BEGIN
 END;
 /
 
--- 8. User-Defined Function: Count Adopter Requests
+
 CREATE OR REPLACE FUNCTION fn_get_adopter_request_count(p_user_id IN VARCHAR2)
 RETURN NUMBER IS
     v_count NUMBER := 0;
@@ -139,7 +137,7 @@ BEGIN
 END;
 /
 
--- 9. Stored Procedure with Cursor FOR Loop
+
 CREATE OR REPLACE PROCEDURE sp_print_vaccination_schedule AS
 BEGIN
     FOR r_pet IN (
@@ -156,7 +154,7 @@ BEGIN
 END;
 /
 
--- 10. Stored Procedure with WHILE Loop
+
 CREATE OR REPLACE PROCEDURE sp_simulate_occupancy_growth(p_iterations IN NUMBER) AS
     v_counter NUMBER := 1;
     v_capacity NUMBER;
