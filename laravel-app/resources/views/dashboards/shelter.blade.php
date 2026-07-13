@@ -137,6 +137,68 @@
                 </div>
             </div>
         </div>
+
+        <div class="content-card p-4 mt-4 mb-4">
+            <h2 class="h5 mb-3">Create New Event / Campaign</h2>
+            <form action="{{ route('events.store') }}" method="POST" class="row g-3">
+                @csrf
+                <div class="col-md-4">
+                    <label class="form-label text-secondary small">Event Title</label>
+                    <input name="title" class="form-control" placeholder="e.g. Street Dog Feeding Campaign" required>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label text-secondary small">Event Date</label>
+                    <input type="date" name="event_date" class="form-control" required>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label text-secondary small">Location</label>
+                    <input name="location" class="form-control" placeholder="e.g. Sector 10 Park, Uttara" required>
+                </div>
+                <div class="col-12">
+                    <label class="form-label text-secondary small">Description</label>
+                    <textarea name="description" class="form-control" rows="3" placeholder="Describe the event, target donations, items needed, etc." required></textarea>
+                </div>
+                <div class="col-12">
+                    <button class="btn btn-success">Create Event</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="content-card p-4 mb-4">
+            <h2 class="h5 mb-3">Manage Events & Campaigns</h2>
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Date</th>
+                            <th>Location</th>
+                            <th>Going</th>
+                            <th>Interested</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @forelse($events ?? [] as $event)
+                        <tr>
+                            <td><strong>{{ $event->title }}</strong></td>
+                            <td>{{ optional($event->event_date)->format('Y-m-d') }}</td>
+                            <td>{{ $event->location }}</td>
+                            <td><span class="badge bg-success">{{ $event->going_count }}</span></td>
+                            <td><span class="badge bg-warning text-white">{{ $event->interested_count }}</span></td>
+                            <td>
+                                <a href="{{ route('events.show', $event) }}" class="btn btn-outline-success btn-sm">View Attendees</a>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="6" class="text-secondary text-center">No events created yet.</td>
+                        </tr>
+                    @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </div>
 @endsection

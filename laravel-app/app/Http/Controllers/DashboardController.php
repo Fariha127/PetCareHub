@@ -48,6 +48,14 @@ class DashboardController extends Controller
                 ->take(10)
                 ->get(),
             'pets' => Pet::latest()->take(8)->get(),
+            'events' => \App\Models\Event::withCount([
+                'enrollments as going_count' => function ($query) {
+                    $query->where('status', 'GOING');
+                },
+                'enrollments as interested_count' => function ($query) {
+                    $query->where('status', 'INTERESTED');
+                }
+            ])->latest()->get(),
         ]);
     }
 

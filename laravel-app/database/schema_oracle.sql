@@ -77,6 +77,31 @@ CREATE TABLE medical_records (
     CONSTRAINT fk_records_vet FOREIGN KEY (vet_id) REFERENCES users (user_id) ON DELETE CASCADE
 );
 
+CREATE TABLE events (
+    event_id VARCHAR2(32) DEFAULT RAWTOHEX(SYS_GUID()) PRIMARY KEY,
+    title VARCHAR2(150) NOT NULL,
+    description VARCHAR2(1000) NOT NULL,
+    event_date DATE NOT NULL,
+    location VARCHAR2(255) NOT NULL,
+    created_by VARCHAR2(32) NOT NULL,
+    created_at DATE DEFAULT SYSDATE,
+    updated_at DATE DEFAULT SYSDATE,
+    CONSTRAINT fk_events_creator FOREIGN KEY (created_by) REFERENCES users (user_id) ON DELETE CASCADE
+);
+
+CREATE TABLE event_enrollments (
+    enrollment_id VARCHAR2(32) DEFAULT RAWTOHEX(SYS_GUID()) PRIMARY KEY,
+    event_id VARCHAR2(32) NOT NULL,
+    user_id VARCHAR2(32) NOT NULL,
+    status VARCHAR2(20) NOT NULL,
+    created_at DATE DEFAULT SYSDATE,
+    updated_at DATE DEFAULT SYSDATE,
+    CONSTRAINT fk_enrollments_event FOREIGN KEY (event_id) REFERENCES events (event_id) ON DELETE CASCADE,
+    CONSTRAINT fk_enrollments_user FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE,
+    CONSTRAINT chk_enrollment_status CHECK (status IN ('INTERESTED', 'GOING')),
+    CONSTRAINT uq_event_user UNIQUE (event_id, user_id)
+);
+
 CREATE INDEX idx_pets_species ON pets (species);
 CREATE INDEX idx_pets_breed ON pets (breed);
 CREATE INDEX idx_pets_status ON pets (adoption_status);
@@ -117,4 +142,20 @@ SELECT
     COUNT(*) AS pet_count
 FROM pets
 GROUP BY vaccination_status;
+
+CREATE OR REPLACE TRIGGER trg_check_event_date
+BEFORE INSERT ON event_enrollments
+FOR EACH ROW
+DECLARE
+    v_event_date DATE;
+BEGIN
+    SELECT event_date INTO v_event_date
+    FROM events
+    WHERE event_id = :NEW.event_id;
+
+    IF v_event_date < TRUNC(SYSDATE) THEN
+        RAISE_APPLICATION_ERROR(-20003, 'Cannot enroll in a past event.');
+    END IF;
+END;
+/
 

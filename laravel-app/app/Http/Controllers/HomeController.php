@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\AdoptionRequest;
 use App\Models\MedicalRecord;
 use App\Models\Pet;
-use Illuminate\Support\Facades\DB;
 
 class HomeController extends Controller
 {
@@ -23,6 +22,26 @@ class HomeController extends Controller
             ->take(6)
             ->get();
 
-        return view('home', compact('stats', 'featuredPets'));
+        $upcomingEvents = \App\Models\Event::withCount([
+            'enrollments as going_count' => function ($query) {
+                $query->where('status', 'GOING');
+            },
+            'enrollments as interested_count' => function ($query) {
+                $query->where('status', 'INTERESTED');
+            }
+        ])
+        ->where('event_date', '>=', now()->startOfDay())
+        ->orderBy('event_date', 'asc')
+        ->get();
+
+        if (auth()->check()) {
+            $userId = auth()->id();
+            $upcomingEvents->each(function ($event) use ($userId) {
+                $enrollment = $event->enrollments()->where('user_id', $userId)->first();
+                $event->user_status = $enrollment ? $enrollment->status : null;
+            });
+        }
+
+        return view('home', compact('stats', 'featuredPets', 'upcomingEvents'));
     }
 }
