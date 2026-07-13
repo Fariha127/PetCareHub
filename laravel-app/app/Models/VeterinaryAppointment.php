@@ -7,6 +7,19 @@ use Illuminate\Database\Eloquent\Model;
 class VeterinaryAppointment extends Model
 {
     protected $primaryKey = 'appointment_id';
+    public $incrementing = false;
+    protected $keyType = 'string';
+
+    protected static function booted()
+    {
+        parent::booted();
+
+        static::creating(function ($model) {
+            if (empty($model->appointment_id)) {
+                $model->appointment_id = strtoupper(str_replace('-', '', \Illuminate\Support\Str::uuid()->toString()));
+            }
+        });
+    }
 
     protected $fillable = [
         'pet_id',

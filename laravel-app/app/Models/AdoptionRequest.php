@@ -7,6 +7,19 @@ use Illuminate\Database\Eloquent\Model;
 class AdoptionRequest extends Model
 {
     protected $primaryKey = 'request_id';
+    public $incrementing = false;
+    protected $keyType = 'string';
+
+    protected static function booted()
+    {
+        parent::booted();
+
+        static::creating(function ($model) {
+            if (empty($model->request_id)) {
+                $model->request_id = strtoupper(str_replace('-', '', \Illuminate\Support\Str::uuid()->toString()));
+            }
+        });
+    }
 
     public $timestamps = false;
 

@@ -6,14 +6,11 @@ use App\Models\AdoptionRequest;
 use App\Models\MedicalRecord;
 use App\Models\Pet;
 use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
-    use WithoutModelEvents;
-
     /**
      * Seed the application's database.
      */

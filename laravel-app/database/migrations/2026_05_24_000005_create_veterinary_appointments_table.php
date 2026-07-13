@@ -3,16 +3,17 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
     public function up(): void
     {
         Schema::create('veterinary_appointments', function (Blueprint $table) {
-            $table->id('appointment_id');
-            $table->unsignedBigInteger('pet_id');
-            $table->unsignedBigInteger('vet_id');
-            $table->unsignedBigInteger('requested_by');
+            $table->string('appointment_id', 32)->default(DB::raw("RAWTOHEX(SYS_GUID())"))->primary();
+            $table->string('pet_id', 32);
+            $table->string('vet_id', 32);
+            $table->string('requested_by', 32);
             $table->date('appointment_date');
             $table->string('reason');
             $table->string('status', 20)->default('SCHEDULED');

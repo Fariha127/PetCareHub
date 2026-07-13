@@ -1,6 +1,5 @@
 CREATE TABLE users (
-    user_id NUMBER PRIMARY KEY,
-    user_id NUMBER PRIMARY KEY,
+    user_id VARCHAR2(32) DEFAULT RAWTOHEX(SYS_GUID()) PRIMARY KEY,
     full_name VARCHAR2(100) NOT NULL,
     email VARCHAR2(120) NOT NULL UNIQUE,
     password VARCHAR2(255) NOT NULL,
@@ -14,8 +13,7 @@ CREATE TABLE users (
 );
 
 CREATE TABLE pets (
-    pet_id NUMBER PRIMARY KEY,
-    pet_id NUMBER PRIMARY KEY,
+    pet_id VARCHAR2(32) DEFAULT RAWTOHEX(SYS_GUID()) PRIMARY KEY,
     pet_name VARCHAR2(100) NOT NULL,
     species VARCHAR2(60) NOT NULL,
     breed VARCHAR2(80),
@@ -33,13 +31,12 @@ CREATE TABLE pets (
 );
 
 CREATE TABLE adoption_requests (
-    request_id NUMBER PRIMARY KEY,
-    request_id NUMBER PRIMARY KEY,
-    user_id NUMBER NOT NULL,
-    pet_id NUMBER NOT NULL,
+    request_id VARCHAR2(32) DEFAULT RAWTOHEX(SYS_GUID()) PRIMARY KEY,
+    user_id VARCHAR2(32) NOT NULL,
+    pet_id VARCHAR2(32) NOT NULL,
     request_date DATE DEFAULT SYSDATE NOT NULL,
     status VARCHAR2(20) DEFAULT 'PENDING' NOT NULL,
-    reviewed_by NUMBER,
+    reviewed_by VARCHAR2(32),
     decision_date DATE,
     remarks VARCHAR2(255),
     CONSTRAINT fk_requests_user FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE,
@@ -49,11 +46,10 @@ CREATE TABLE adoption_requests (
 );
 
 CREATE TABLE veterinary_appointments (
-    appointment_id NUMBER PRIMARY KEY,
-    appointment_id NUMBER PRIMARY KEY,
-    pet_id NUMBER NOT NULL,
-    vet_id NUMBER NOT NULL,
-    requested_by NUMBER NOT NULL,
+    appointment_id VARCHAR2(32) DEFAULT RAWTOHEX(SYS_GUID()) PRIMARY KEY,
+    pet_id VARCHAR2(32) NOT NULL,
+    vet_id VARCHAR2(32) NOT NULL,
+    requested_by VARCHAR2(32) NOT NULL,
     appointment_date DATE NOT NULL,
     reason VARCHAR2(255) NOT NULL,
     status VARCHAR2(20) DEFAULT 'SCHEDULED' NOT NULL,
@@ -67,10 +63,9 @@ CREATE TABLE veterinary_appointments (
 );
 
 CREATE TABLE medical_records (
-    record_id NUMBER PRIMARY KEY,
-    record_id NUMBER PRIMARY KEY,
-    pet_id NUMBER NOT NULL,
-    vet_id NUMBER NOT NULL,
+    record_id VARCHAR2(32) DEFAULT RAWTOHEX(SYS_GUID()) PRIMARY KEY,
+    pet_id VARCHAR2(32) NOT NULL,
+    vet_id VARCHAR2(32) NOT NULL,
     diagnosis VARCHAR2(255) NOT NULL,
     treatment VARCHAR2(255) NOT NULL,
     vaccination_date DATE,
@@ -81,64 +76,6 @@ CREATE TABLE medical_records (
     CONSTRAINT fk_records_pet FOREIGN KEY (pet_id) REFERENCES pets (pet_id) ON DELETE CASCADE,
     CONSTRAINT fk_records_vet FOREIGN KEY (vet_id) REFERENCES users (user_id) ON DELETE CASCADE
 );
-
-
-CREATE SEQUENCE seq_users START WITH 1 INCREMENT BY 1;
-CREATE SEQUENCE seq_pets START WITH 1 INCREMENT BY 1;
-CREATE SEQUENCE seq_adoption_requests START WITH 1 INCREMENT BY 1;
-CREATE SEQUENCE seq_veterinary_appointments START WITH 1 INCREMENT BY 1;
-CREATE SEQUENCE seq_medical_records START WITH 1 INCREMENT BY 1;
-
-
-CREATE OR REPLACE TRIGGER trg_users_id
-BEFORE INSERT ON users
-FOR EACH ROW
-BEGIN
-    IF :NEW.user_id IS NULL THEN
-        SELECT seq_users.NEXTVAL INTO :NEW.user_id FROM dual;
-    END IF;
-END;
-/
-
-CREATE OR REPLACE TRIGGER trg_pets_id
-BEFORE INSERT ON pets
-FOR EACH ROW
-BEGIN
-    IF :NEW.pet_id IS NULL THEN
-        SELECT seq_pets.NEXTVAL INTO :NEW.pet_id FROM dual;
-    END IF;
-END;
-/
-
-CREATE OR REPLACE TRIGGER trg_adoption_requests_id
-BEFORE INSERT ON adoption_requests
-FOR EACH ROW
-BEGIN
-    IF :NEW.request_id IS NULL THEN
-        SELECT seq_adoption_requests.NEXTVAL INTO :NEW.request_id FROM dual;
-    END IF;
-END;
-/
-
-CREATE OR REPLACE TRIGGER trg_vet_appointments_id
-BEFORE INSERT ON veterinary_appointments
-FOR EACH ROW
-BEGIN
-    IF :NEW.appointment_id IS NULL THEN
-        SELECT seq_veterinary_appointments.NEXTVAL INTO :NEW.appointment_id FROM dual;
-    END IF;
-END;
-/
-
-CREATE OR REPLACE TRIGGER trg_medical_records_id
-BEFORE INSERT ON medical_records
-FOR EACH ROW
-BEGIN
-    IF :NEW.record_id IS NULL THEN
-        SELECT seq_medical_records.NEXTVAL INTO :NEW.record_id FROM dual;
-    END IF;
-END;
-/
 
 CREATE INDEX idx_pets_species ON pets (species);
 CREATE INDEX idx_pets_breed ON pets (breed);
@@ -180,3 +117,179 @@ SELECT
     COUNT(*) AS pet_count
 FROM pets
 GROUP BY vaccination_status;
+
+-- =========================================================================
+-- PL/SQL TRIGGERS, PROCEDURES, FUNCTIONS & LOOPS
+-- =========================================================================
+
+-- 1. Adoption Status Update Trigger
+CREATE OR REPLACE TRIGGER trg_adoption_status_update
+AFTER UPDATE OF status ON adoption_requests
+FOR EACH ROW
+WHEN (NEW.status = 'APPROVED')
+BEGIN
+    UPDATE pets
+    SET adoption_status = 'ADOPTED',
+        updated_at = SYSDATE
+    WHERE pet_id = :NEW.pet_id;
+END;
+/
+
+-- 2. Appointment Vet Role Verification Trigger
+CREATE OR REPLACE TRIGGER trg_appointment_vet_role
+BEFORE INSERT OR UPDATE OF vet_id ON veterinary_appointments
+FOR EACH ROW
+DECLARE
+    v_role users.role%TYPE;
+BEGIN
+    SELECT role INTO v_role
+    FROM users
+    WHERE user_id = :NEW.vet_id;
+
+    IF v_role <> 'VETERINARIAN' THEN
+        RAISE_APPLICATION_ERROR(-20001, 'vet_id must reference a veterinarian account.');
+    END IF;
+END;
+/
+
+-- 3. Medical Record Vet Role Verification Trigger
+CREATE OR REPLACE TRIGGER trg_medical_record_vet_role
+BEFORE INSERT OR UPDATE OF vet_id ON medical_records
+FOR EACH ROW
+DECLARE
+    v_role users.role%TYPE;
+BEGIN
+    SELECT role INTO v_role
+    FROM users
+    WHERE user_id = :NEW.vet_id;
+
+    IF v_role <> 'VETERINARIAN' THEN
+        RAISE_APPLICATION_ERROR(-20002, 'vet_id must reference a veterinarian account.');
+    END IF;
+END;
+/
+
+-- 4. Process Adoption Request Stored Procedure
+CREATE OR REPLACE PROCEDURE sp_process_adoption_request (
+    p_request_id IN VARCHAR2,
+    p_status IN VARCHAR2,
+    p_reviewer_id IN VARCHAR2,
+    p_remarks IN VARCHAR2
+) AS
+BEGIN
+    UPDATE adoption_requests
+    SET status = p_status,
+        reviewed_by = p_reviewer_id,
+        decision_date = SYSDATE,
+        remarks = p_remarks
+    WHERE request_id = p_request_id;
+
+    COMMIT;
+END;
+/
+
+-- 5. Generate Monthly Adoption Report Procedure (using SYS_REFCURSOR)
+CREATE OR REPLACE PROCEDURE sp_monthly_adoption_report (
+    p_month IN NUMBER,
+    p_year IN NUMBER,
+    p_result OUT SYS_REFCURSOR
+) AS
+BEGIN
+    OPEN p_result FOR
+        SELECT
+            ar.request_id,
+            ar.request_date,
+            u.full_name AS adopter_name,
+            p.pet_name,
+            p.species,
+            p.breed,
+            ar.status,
+            ar.decision_date,
+            ar.remarks
+        FROM adoption_requests ar
+        JOIN users u ON u.user_id = ar.user_id
+        JOIN pets p ON p.pet_id = ar.pet_id
+        WHERE ar.status = 'APPROVED'
+          AND EXTRACT(MONTH FROM ar.request_date) = p_month
+          AND EXTRACT(YEAR FROM ar.request_date) = p_year
+        ORDER BY ar.request_date DESC;
+END;
+/
+
+-- 6. Dashboard Metrics Retrieve Procedure
+CREATE OR REPLACE PROCEDURE sp_dashboard_metrics (
+    p_total_pets OUT NUMBER,
+    p_total_adopted OUT NUMBER,
+    p_pending_requests OUT NUMBER,
+    p_vaccinations_this_month OUT NUMBER
+) AS
+BEGIN
+    SELECT COUNT(*) INTO p_total_pets FROM pets;
+    SELECT COUNT(*) INTO p_total_adopted FROM pets WHERE adoption_status = 'ADOPTED';
+    SELECT COUNT(*) INTO p_pending_requests FROM adoption_requests WHERE status = 'PENDING';
+    SELECT COUNT(*) INTO p_vaccinations_this_month
+    FROM medical_records
+    WHERE vaccination_date >= TRUNC(SYSDATE, 'MM');
+END;
+/
+
+-- 7. User-Defined Function: Categorize Pet Age Group
+CREATE OR REPLACE FUNCTION fn_get_pet_age_group(p_age IN NUMBER)
+RETURN VARCHAR2 IS
+BEGIN
+    IF p_age < 1 THEN
+        RETURN 'Kitten/Puppy';
+    ELSIF p_age <= 3 THEN
+        RETURN 'Young Adult';
+    ELSIF p_age <= 7 THEN
+        RETURN 'Mature Adult';
+    ELSE
+        RETURN 'Senior';
+    END IF;
+END;
+/
+
+-- 8. User-Defined Function: Count Adopter Requests
+CREATE OR REPLACE FUNCTION fn_get_adopter_request_count(p_user_id IN VARCHAR2)
+RETURN NUMBER IS
+    v_count NUMBER := 0;
+BEGIN
+    SELECT COUNT(*) INTO v_count
+    FROM adoption_requests
+    WHERE user_id = p_user_id;
+    RETURN v_count;
+END;
+/
+
+-- 9. Stored Procedure with Cursor FOR Loop
+CREATE OR REPLACE PROCEDURE sp_print_vaccination_schedule AS
+BEGIN
+    FOR r_pet IN (
+        SELECT p.pet_name, mr.next_vaccine_date, u.full_name AS vet_name
+        FROM medical_records mr
+        JOIN pets p ON p.pet_id = mr.pet_id
+        JOIN users u ON u.user_id = mr.vet_id
+        WHERE mr.next_vaccine_date IS NOT NULL
+    ) LOOP
+        DBMS_OUTPUT.PUT_LINE('Pet: ' || r_pet.pet_name || 
+                             ' | Next Vaccine Due: ' || TO_CHAR(r_pet.next_vaccine_date, 'YYYY-MM-DD') || 
+                             ' | Vet: ' || r_pet.vet_name);
+    END LOOP;
+END;
+/
+
+-- 10. Stored Procedure with WHILE Loop
+CREATE OR REPLACE PROCEDURE sp_simulate_occupancy_growth(p_iterations IN NUMBER) AS
+    v_counter NUMBER := 1;
+    v_capacity NUMBER;
+BEGIN
+    SELECT COUNT(*) INTO v_capacity FROM pets WHERE adoption_status <> 'ADOPTED';
+    DBMS_OUTPUT.PUT_LINE('Initial Shelter Occupancy: ' || v_capacity);
+    
+    WHILE v_counter <= p_iterations LOOP
+        v_capacity := v_capacity + 2;
+        DBMS_OUTPUT.PUT_LINE('Simulation Week ' || v_counter || ': Projected Occupancy = ' || v_capacity);
+        v_counter := v_counter + 1;
+    END LOOP;
+END;
+/

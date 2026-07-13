@@ -7,6 +7,19 @@ use Illuminate\Database\Eloquent\Model;
 class Pet extends Model
 {
     protected $primaryKey = 'pet_id';
+    public $incrementing = false;
+    protected $keyType = 'string';
+
+    protected static function booted()
+    {
+        parent::booted();
+
+        static::creating(function ($model) {
+            if (empty($model->pet_id)) {
+                $model->pet_id = strtoupper(str_replace('-', '', \Illuminate\Support\Str::uuid()->toString()));
+            }
+        });
+    }
 
     private const FALLBACK_IMAGES = [
         'CAT' => 'https://images.unsplash.com/photo-1519052537078-e6302a4968d4?auto=format&fit=crop&w=1200&q=80',

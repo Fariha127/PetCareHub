@@ -10,6 +10,19 @@ class User extends Authenticatable
     use Notifiable;
 
     protected $primaryKey = 'user_id';
+    public $incrementing = false;
+    protected $keyType = 'string';
+
+    protected static function booted()
+    {
+        parent::booted();
+
+        static::creating(function ($model) {
+            if (empty($model->user_id)) {
+                $model->user_id = strtoupper(str_replace('-', '', \Illuminate\Support\Str::uuid()->toString()));
+            }
+        });
+    }
 
     protected $fillable = [
         'full_name',

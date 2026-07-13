@@ -1,5 +1,6 @@
--- PetCareHub Oracle procedures and triggers
+-- PetCareHub Oracle procedures, triggers, functions and loops
 
+-- 1. Adoption Status Update Trigger
 CREATE OR REPLACE TRIGGER trg_adoption_status_update
 AFTER UPDATE OF status ON adoption_requests
 FOR EACH ROW
@@ -12,6 +13,7 @@ BEGIN
 END;
 /
 
+-- 2. Appointment Vet Role Verification Trigger
 CREATE OR REPLACE TRIGGER trg_appointment_vet_role
 BEFORE INSERT OR UPDATE OF vet_id ON veterinary_appointments
 FOR EACH ROW
@@ -28,6 +30,7 @@ BEGIN
 END;
 /
 
+-- 3. Medical Record Vet Role Verification Trigger
 CREATE OR REPLACE TRIGGER trg_medical_record_vet_role
 BEFORE INSERT OR UPDATE OF vet_id ON medical_records
 FOR EACH ROW
@@ -44,10 +47,11 @@ BEGIN
 END;
 /
 
+-- 4. Process Adoption Request Stored Procedure
 CREATE OR REPLACE PROCEDURE sp_process_adoption_request (
-    p_request_id IN NUMBER,
+    p_request_id IN VARCHAR2,
     p_status IN VARCHAR2,
-    p_reviewer_id IN NUMBER,
+    p_reviewer_id IN VARCHAR2,
     p_remarks IN VARCHAR2
 ) AS
 BEGIN
@@ -62,6 +66,7 @@ BEGIN
 END;
 /
 
+-- 5. Generate Monthly Adoption Report Procedure (using SYS_REFCURSOR)
 CREATE OR REPLACE PROCEDURE sp_monthly_adoption_report (
     p_month IN NUMBER,
     p_year IN NUMBER,
@@ -89,54 +94,7 @@ BEGIN
 END;
 /
 
-CREATE OR REPLACE PROCEDURE sp_dashboard_metrics (
-    p_total_pets OUT NUMBER,
-    p_total_adopted OUT NUMBER,
-    p_pending_requests OUT NUMBER,
-    p_request_id IN NUMBER,
-    p_status IN VARCHAR2,
-    p_reviewer_id IN NUMBER,
-    p_remarks IN VARCHAR2
-) AS
-BEGIN
-    UPDATE adoption_requests
-    SET status = p_status,
-        reviewed_by = p_reviewer_id,
-        decision_date = SYSDATE,
-        remarks = p_remarks
-    WHERE request_id = p_request_id;
-
-    COMMIT;
-END;
-/
-
-CREATE OR REPLACE PROCEDURE sp_monthly_adoption_report (
-    p_month IN NUMBER,
-    p_year IN NUMBER,
-    p_result OUT SYS_REFCURSOR
-) AS
-BEGIN
-    OPEN p_result FOR
-        SELECT
-            ar.request_id,
-            ar.request_date,
-            u.full_name AS adopter_name,
-            p.pet_name,
-            p.species,
-            p.breed,
-            ar.status,
-            ar.decision_date,
-            ar.remarks
-        FROM adoption_requests ar
-        JOIN users u ON u.user_id = ar.user_id
-        JOIN pets p ON p.pet_id = ar.pet_id
-        WHERE ar.status = 'APPROVED'
-          AND EXTRACT(MONTH FROM ar.request_date) = p_month
-          AND EXTRACT(YEAR FROM ar.request_date) = p_year
-        ORDER BY ar.request_date DESC;
-END;
-/
-
+-- 6. Dashboard Metrics Retrieve Procedure
 CREATE OR REPLACE PROCEDURE sp_dashboard_metrics (
     p_total_pets OUT NUMBER,
     p_total_adopted OUT NUMBER,
@@ -153,6 +111,7 @@ BEGIN
 END;
 /
 
+-- 7. User-Defined Function: Categorize Pet Age Group
 CREATE OR REPLACE FUNCTION fn_get_pet_age_group(p_age IN NUMBER)
 RETURN VARCHAR2 IS
 BEGIN
@@ -168,7 +127,8 @@ BEGIN
 END;
 /
 
-CREATE OR REPLACE FUNCTION fn_get_adopter_request_count(p_user_id IN NUMBER)
+-- 8. User-Defined Function: Count Adopter Requests
+CREATE OR REPLACE FUNCTION fn_get_adopter_request_count(p_user_id IN VARCHAR2)
 RETURN NUMBER IS
     v_count NUMBER := 0;
 BEGIN
@@ -179,9 +139,9 @@ BEGIN
 END;
 /
 
+-- 9. Stored Procedure with Cursor FOR Loop
 CREATE OR REPLACE PROCEDURE sp_print_vaccination_schedule AS
 BEGIN
-    
     FOR r_pet IN (
         SELECT p.pet_name, mr.next_vaccine_date, u.full_name AS vet_name
         FROM medical_records mr
@@ -190,12 +150,13 @@ BEGIN
         WHERE mr.next_vaccine_date IS NOT NULL
     ) LOOP
         DBMS_OUTPUT.PUT_LINE('Pet: ' || r_pet.pet_name || 
-                             ' | Next Vaccine: ' || TO_CHAR(r_pet.next_vaccine_date, 'YYYY-MM-DD') || 
+                             ' | Next Vaccine Due: ' || TO_CHAR(r_pet.next_vaccine_date, 'YYYY-MM-DD') || 
                              ' | Vet: ' || r_pet.vet_name);
     END LOOP;
 END;
 /
 
+-- 10. Stored Procedure with WHILE Loop
 CREATE OR REPLACE PROCEDURE sp_simulate_occupancy_growth(p_iterations IN NUMBER) AS
     v_counter NUMBER := 1;
     v_capacity NUMBER;
@@ -203,10 +164,9 @@ BEGIN
     SELECT COUNT(*) INTO v_capacity FROM pets WHERE adoption_status <> 'ADOPTED';
     DBMS_OUTPUT.PUT_LINE('Initial Shelter Occupancy: ' || v_capacity);
     
-    
     WHILE v_counter <= p_iterations LOOP
         v_capacity := v_capacity + 2;
-        DBMS_OUTPUT.PUT_LINE('Simulation Month ' || v_counter || ': Projected Pets = ' || v_capacity);
+        DBMS_OUTPUT.PUT_LINE('Simulation Week ' || v_counter || ': Projected Occupancy = ' || v_capacity);
         v_counter := v_counter + 1;
     END LOOP;
 END;

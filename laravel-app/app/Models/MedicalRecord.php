@@ -7,6 +7,19 @@ use Illuminate\Database\Eloquent\Model;
 class MedicalRecord extends Model
 {
     protected $primaryKey = 'record_id';
+    public $incrementing = false;
+    protected $keyType = 'string';
+
+    protected static function booted()
+    {
+        parent::booted();
+
+        static::creating(function ($model) {
+            if (empty($model->record_id)) {
+                $model->record_id = strtoupper(str_replace('-', '', \Illuminate\Support\Str::uuid()->toString()));
+            }
+        });
+    }
 
     protected $fillable = [
         'pet_id',
