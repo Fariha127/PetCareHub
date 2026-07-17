@@ -91,7 +91,7 @@ class DashboardController extends Controller
     {
         $currentPetCount = Pet::where('adoption_status', '!=', 'ADOPTED')->count();
 
-        return view('dashboards.shelter', [
+        return view('dashboards.shelter.overview', [
             'totalPets' => Pet::count(),
             'totalAdoptedPets' => Pet::where('adoption_status', 'ADOPTED')->count(),
             'pendingRequests' => AdoptionRequest::where('status', 'PENDING')->count(),
@@ -99,20 +99,42 @@ class DashboardController extends Controller
             'shelterCapacity' => self::SHELTER_CAPACITY,
             'currentPetCount' => $currentPetCount,
             'availableSlots' => max(self::SHELTER_CAPACITY - $currentPetCount, 0),
-            'requests' => AdoptionRequest::with(['user', 'pet'])
-                ->latest('request_date')
-                ->take(10)
-                ->get(),
-            'pets' => Pet::latest()->take(8)->get(),
-            'events' => \App\Models\Event::withCount([
-                'enrollments as going_count' => function ($query) {
-                    $query->where('status', 'GOING');
-                },
-                'enrollments as interested_count' => function ($query) {
-                    $query->where('status', 'INTERESTED');
-                }
-            ])->latest()->get(),
         ]);
+    }
+
+    public function shelterAddPet()
+    {
+        return view('dashboards.shelter.add_pet');
+    }
+
+    public function shelterRequests()
+    {
+        $requests = AdoptionRequest::with(['user', 'pet'])
+            ->latest('request_date')
+            ->get();
+
+        return view('dashboards.shelter.requests', compact('requests'));
+    }
+
+    public function shelterEvents()
+    {
+        $events = \App\Models\Event::withCount([
+            'enrollments as going_count' => function ($query) {
+                $query->where('status', 'GOING');
+            },
+            'enrollments as interested_count' => function ($query) {
+                $query->where('status', 'INTERESTED');
+            }
+        ])->latest()->get();
+
+        return view('dashboards.shelter.events', compact('events'));
+    }
+
+    public function shelterPets()
+    {
+        $pets = Pet::latest()->get();
+
+        return view('dashboards.shelter.pets', compact('pets'));
     }
 
     public function vetDashboard()

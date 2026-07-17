@@ -4,19 +4,20 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>PetCareHub</title>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         :root {
             --ink: #16202a;
-            --accent: #2f6f68;
-            --accent-2: #d9efe9;
-            --surface: #f7f7f2;
+            --accent: #f34723; 
+            --accent-2: #fdf0ed; 
+            --cool-accent: #7b1fa2; 
+            --surface: #fbf7f5;
         }
 
         body {
-            font-family: 'Space Grotesk', sans-serif;
-            background: linear-gradient(180deg, #f4f7f2 0%, #ffffff 42%, #eef5f1 100%);
+            font-family: 'Roboto Slab', serif;
+            background: linear-gradient(180deg, #f8f4fa 0%, #ffffff 42%, #fbf5f3 100%);
             color: var(--ink);
         }
 
@@ -29,9 +30,9 @@
         .content-card,
         .dashboard-panel {
             background: rgba(255, 255, 255, 0.92);
-            border: 1px solid rgba(47, 111, 104, 0.12);
+            border: 1px solid rgba(92, 18, 124, 0.08); 
             border-radius: 0.5rem;
-            box-shadow: 0 18px 40px rgba(18, 39, 34, 0.08);
+            box-shadow: 0 18px 40px rgba(58, 22, 74, 0.06);
         }
 
         .badge-soft {
@@ -41,18 +42,21 @@
 
         .sidebar {
             min-height: 100%;
-            background: linear-gradient(180deg, #16332f 0%, #214c45 100%);
+            background: linear-gradient(180deg, #1b072b 0%, #3e0c4f 100%); /* Deep Violet-Black to Purple */
             color: #fff;
             border-radius: 0.5rem;
+            box-shadow: 0 10px 30px rgba(58, 22, 74, 0.25);
         }
 
         .sidebar a {
-            color: rgba(255, 255, 255, 0.9);
+            color: rgba(255, 255, 255, 0.85);
             text-decoration: none;
+            transition: all 0.2s ease;
         }
 
         .sidebar a:hover {
             color: #fff;
+            background: rgba(255, 255, 255, 0.08) !important;
         }
 
         .section-title {
@@ -80,6 +84,56 @@
             object-position: center 38%;
         }
 
+        /* Theme overrides from Green to Red-Orange & Purple */
+        .text-success,
+        .link-success,
+        .navbar-brand.text-success {
+            color: var(--accent) !important;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #f34723 0%, #d81b60 100%) !important;
+            border: none !important;
+            color: #fff !important;
+            box-shadow: 0 4px 15px rgba(243, 71, 35, 0.2) !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .btn-success:hover,
+        .btn-success:focus,
+        .btn-success:active {
+            background: linear-gradient(135deg, #d81b60 0%, #f34723 100%) !important;
+            color: #fff !important;
+            box-shadow: 0 6px 20px rgba(243, 71, 35, 0.3) !important;
+            transform: translateY(-1px);
+        }
+
+        .btn-outline-success {
+            color: var(--accent) !important;
+            border-color: var(--accent) !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .btn-outline-success:hover,
+        .btn-outline-success:focus,
+        .btn-outline-success:active {
+            background: linear-gradient(135deg, #f34723 0%, #d81b60 100%) !important;
+            border-color: transparent !important;
+            color: #fff !important;
+        }
+
+        .bg-success {
+            background: linear-gradient(135deg, #f34723 0%, #d81b60 100%) !important;
+        }
+
+        .badge-soft {
+            background: var(--accent-2) !important;
+            color: var(--accent) !important;
+        }
+
+        .badge.bg-success {
+            background: linear-gradient(135deg, #f34723 0%, #d81b60 100%) !important;
+        }
     </style>
 </head>
 <body>

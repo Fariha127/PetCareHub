@@ -34,6 +34,10 @@ Route::middleware(['auth', 'role:USER'])->group(function () {
 
 Route::middleware(['auth', 'role:SHELTER_STAFF,ADMIN'])->group(function () {
     Route::get('/dashboard/shelter', [DashboardController::class, 'shelterDashboard'])->name('dashboard.shelter');
+    Route::get('/dashboard/shelter/add-pet', [DashboardController::class, 'shelterAddPet'])->name('dashboard.shelter.add_pet');
+    Route::get('/dashboard/shelter/requests', [DashboardController::class, 'shelterRequests'])->name('dashboard.shelter.requests');
+    Route::get('/dashboard/shelter/events', [DashboardController::class, 'shelterEvents'])->name('dashboard.shelter.events');
+    Route::get('/dashboard/shelter/pets', [DashboardController::class, 'shelterPets'])->name('dashboard.shelter.pets');
     Route::post('/adoptions/{adoptionRequest}/approve', [AdoptionController::class, 'approve'])->name('adoptions.approve');
     Route::post('/adoptions/{adoptionRequest}/reject', [AdoptionController::class, 'reject'])->name('adoptions.reject');
     Route::post('/pets', [PetController::class, 'store'])->name('pets.store');

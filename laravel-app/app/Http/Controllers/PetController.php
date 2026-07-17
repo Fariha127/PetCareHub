@@ -59,34 +59,42 @@ class PetController extends Controller
 
     public function store(Request $request)
     {
-        Pet::create($request->validate([
+        $data = $request->validate([
             'pet_name' => ['required', 'string', 'max:100'],
             'species' => ['required', 'string', 'max:60'],
             'breed' => ['nullable', 'string', 'max:80'],
-            'age' => ['required', 'integer', 'min:0'],
+            'age' => ['required', 'numeric', 'min:0'],
             'gender' => ['required', 'string'],
             'vaccination_status' => ['required', 'string'],
             'health_condition' => ['nullable', 'string'],
-            'adoption_status' => ['required', 'string'],
+            'adoption_status' => ['nullable', 'string'],
             'image_path' => ['nullable', 'string'],
-        ]));
+        ]);
+
+        if (empty($data['adoption_status'])) {
+            $data['adoption_status'] = 'AVAILABLE';
+        }
+
+        Pet::create($data);
 
         return back()->with('success', 'Pet saved successfully.');
     }
 
     public function update(Request $request, Pet $pet)
     {
-        $pet->update($request->validate([
+        $data = $request->validate([
             'pet_name' => ['required', 'string', 'max:100'],
             'species' => ['required', 'string', 'max:60'],
             'breed' => ['nullable', 'string', 'max:80'],
-            'age' => ['required', 'integer', 'min:0'],
+            'age' => ['required', 'numeric', 'min:0'],
             'gender' => ['required', 'string'],
             'vaccination_status' => ['required', 'string'],
             'health_condition' => ['nullable', 'string'],
             'adoption_status' => ['required', 'string'],
             'image_path' => ['nullable', 'string'],
-        ]));
+        ]);
+
+        $pet->update($data);
 
         return back()->with('success', 'Pet updated successfully.');
     }
