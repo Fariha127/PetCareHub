@@ -79,6 +79,58 @@ class DatabaseSeeder extends Seeder
             'distinct_habit' => 'Hops around excitedly when someone approaches',
         ]);
 
+        $bella = Pet::updateOrCreate(['pet_name' => 'Bella'], [
+            'species' => 'Dog',
+            'breed' => 'Golden Retriever',
+            'age' => 2,
+            'gender' => 'FEMALE',
+            'vaccination_status' => 'FULLY_VACCINATED',
+            'health_condition' => 'Very healthy and social',
+            'adoption_status' => 'AVAILABLE',
+            'image_path' => 'https://images.unsplash.com/photo-1552053831-71594a27632d?auto=format&fit=crop&w=900&q=80',
+            'food_preference' => 'Chicken and rice dry kibble',
+            'distinct_habit' => 'Loves swimming and fetching tennis balls',
+        ]);
+
+        $casper = Pet::updateOrCreate(['pet_name' => 'Casper'], [
+            'species' => 'Cat',
+            'breed' => 'Persian',
+            'age' => 1,
+            'gender' => 'MALE',
+            'vaccination_status' => 'FULLY_VACCINATED',
+            'health_condition' => 'Healthy and playful',
+            'adoption_status' => 'AVAILABLE',
+            'image_path' => 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&w=900&q=80',
+            'food_preference' => 'Salmon wet food, kitten dry crunchies',
+            'distinct_habit' => 'Purrs very loudly when brushed or scratched',
+        ]);
+
+        $max = Pet::updateOrCreate(['pet_name' => 'Max'], [
+            'species' => 'Dog',
+            'breed' => 'German Shepherd',
+            'age' => 4,
+            'gender' => 'MALE',
+            'vaccination_status' => 'PARTIALLY_VACCINATED',
+            'health_condition' => 'Energetic and alert',
+            'adoption_status' => 'AVAILABLE',
+            'image_path' => 'https://images.unsplash.com/photo-1589941013453-ec89f33b5e95?auto=format&fit=crop&w=900&q=80',
+            'food_preference' => 'Raw beef diet and large bone biscuits',
+            'distinct_habit' => 'Very protective and highly trainable, sits on command',
+        ]);
+
+        $rocky = Pet::updateOrCreate(['pet_name' => 'Rocky'], [
+            'species' => 'Cat',
+            'breed' => 'British Shorthair',
+            'age' => 3,
+            'gender' => 'MALE',
+            'vaccination_status' => 'NOT_VACCINATED',
+            'health_condition' => 'Calm and quiet',
+            'adoption_status' => 'AVAILABLE',
+            'image_path' => 'https://images.unsplash.com/photo-1533738363-b7f9aef128ce?auto=format&fit=crop&w=900&q=80',
+            'food_preference' => 'Grain-free dry food, salmon treats',
+            'distinct_habit' => 'Loves to sit by the window and watch birds all day',
+        ]);
+
         AdoptionRequest::firstOrCreate([
             'user_id' => $adopter->user_id,
             'pet_id' => $luna->pet_id,
@@ -97,6 +149,28 @@ class DatabaseSeeder extends Seeder
             'vaccination_date' => now()->subDays(15),
             'next_vaccine_date' => now()->addMonth(),
             'prescription' => 'Vitamin supplement',
+        ]);
+
+        // Seed Events in Bangladesh
+        \App\Models\Event::updateOrCreate(['title' => 'Dhanmondi Lake Stray Feeding Campaign'], [
+            'description' => 'Help us distribute healthy cooked food, kibbles, and clean water to stray dogs and cats around Dhanmondi Lake. Volunteers are encouraged to join and bring dry foods.',
+            'event_date' => now()->addDays(5),
+            'location' => 'Rabindra Sarobar Area, Dhanmondi Lake, Dhaka, Bangladesh',
+            'created_by' => $staff->user_id,
+        ]);
+
+        \App\Models\Event::updateOrCreate(['title' => 'Chittagong Free Rabies Vaccination Camp'], [
+            'description' => 'A community welfare event offering free Rabies vaccinations and quick medical checks for stray dogs and outdoor pets. Organized by PetCareHub vet clinic.',
+            'event_date' => now()->addDays(10),
+            'location' => 'GEC Circle Open Ground, Chittagong, Bangladesh',
+            'created_by' => $staff->user_id,
+        ]);
+
+        \App\Models\Event::updateOrCreate(['title' => 'Sylhet Rescue Pet Adoption Meetup'], [
+            'description' => 'Come and interact with our loving rescue animals up for adoption. Get free consultations from our veterinarian on pet health and behavior.',
+            'event_date' => now()->addDays(12),
+            'location' => 'Shahi Eidgah Open Field, Sylhet, Bangladesh',
+            'created_by' => $staff->user_id,
         ]);
     }
 }

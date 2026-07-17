@@ -15,7 +15,7 @@ class AdoptionController extends Controller
         }
 
         $data = $request->validate([
-            'pet_id' => ['required', 'integer', 'exists:pets,pet_id'],
+            'pet_id' => ['required', 'string', 'exists:pets,pet_id'],
         ]);
 
         DB::transaction(function () use ($data) {
