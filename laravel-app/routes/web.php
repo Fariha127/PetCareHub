@@ -23,6 +23,10 @@ Route::get('/pets/{pet}', [PetController::class, 'show'])->name('pets.show');
 Route::middleware(['auth', 'role:USER'])->group(function () {
     Route::post('/adoptions', [AdoptionController::class, 'store'])->name('adoptions.store');
     Route::get('/dashboard/user', [DashboardController::class, 'userDashboard'])->name('dashboard.user');
+    Route::post('/dashboard/user/profile', [DashboardController::class, 'updateProfile'])->name('dashboard.user.profile.update');
+    Route::get('/dashboard/user/requests', [DashboardController::class, 'userRequests'])->name('dashboard.user.requests');
+    Route::get('/dashboard/user/appointments', [DashboardController::class, 'userAppointments'])->name('dashboard.user.appointments');
+    Route::get('/dashboard/user/pets', [DashboardController::class, 'userPets'])->name('dashboard.user.pets');
     Route::get('/veterinary/appointments', [VeterinaryController::class, 'appointments'])->name('veterinary.appointments');
     Route::post('/veterinary/appointments', [VeterinaryController::class, 'storeAppointment'])->name('veterinary.appointments.store');
     Route::post('/events/{event}/enroll', [EventController::class, 'enroll'])->name('events.enroll');
