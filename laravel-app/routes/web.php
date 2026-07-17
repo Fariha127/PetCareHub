@@ -49,6 +49,9 @@ Route::middleware(['auth', 'role:SHELTER_STAFF,ADMIN'])->group(function () {
 
 Route::middleware(['auth', 'role:VETERINARIAN,ADMIN'])->group(function () {
     Route::get('/dashboard/vet', [DashboardController::class, 'vetDashboard'])->name('dashboard.vet');
+    Route::get('/dashboard/vet/add-record', [DashboardController::class, 'vetAddRecord'])->name('dashboard.vet.add_record');
+    Route::get('/dashboard/vet/appointments', [DashboardController::class, 'vetAppointments'])->name('dashboard.vet.appointments');
+    Route::post('/dashboard/vet/appointments/{appointment}/status', [DashboardController::class, 'updateAppointmentStatus'])->name('dashboard.vet.appointments.status');
     Route::post('/veterinary/records', [VeterinaryController::class, 'storeRecord'])->name('veterinary.records.store');
 });
 

@@ -139,20 +139,73 @@ class DashboardController extends Controller
 
     public function vetDashboard()
     {
-        return view('dashboards.vet', [
-            'appointments' => VeterinaryAppointment::with(['pet', 'requester'])
-                ->latest('appointment_date')
-                ->take(10)
-                ->get(),
-            'records' => MedicalRecord::with(['pet', 'vet'])
-                ->latest()
-                ->take(10)
-                ->get(),
+        $vetId = auth()->id();
+        $appointmentsCount = VeterinaryAppointment::where('vet_id', $vetId)->count();
+        $recordsCount = MedicalRecord::where('vet_id', $vetId)->count();
+
+        $vaccinations = MedicalRecord::with('pet')
+            ->whereNotNull('next_vaccine_date')
+            ->whereDate('next_vaccine_date', '>=', now())
+            ->orderBy('next_vaccine_date')
+            ->get();
+
+        $recentRecords = MedicalRecord::with(['pet', 'vet'])
+            ->where('vet_id', $vetId)
+            ->latest()
+            ->take(10)
+            ->get();
+
+        return view('dashboards.vet.overview', [
+            'appointmentsCount' => $appointmentsCount,
+            'recordsCount' => $recordsCount,
+            'vaccinationsDueCount' => $vaccinations->count(),
+            'recentRecords' => $recentRecords,
+            'vaccinations' => $vaccinations->take(10),
+        ]);
+    }
+
+    public function vetAddRecord()
+    {
+        return view('dashboards.vet.add_record', [
             'pets' => Pet::orderBy('pet_name')->get(),
             'vets' => User::where('role', 'VETERINARIAN')->orderBy('full_name')->get(),
-            'vaccinationsDue' => MedicalRecord::whereNotNull('next_vaccine_date')
-                ->whereDate('next_vaccine_date', '>=', now())
-                ->count(),
         ]);
+    }
+
+    public function vetAppointments()
+    {
+        $vetId = auth()->id();
+        
+        $upcoming = VeterinaryAppointment::with(['pet', 'requester'])
+            ->where('vet_id', $vetId)
+            ->where(function ($query) {
+                $query->where('status', 'SCHEDULED')
+                      ->whereDate('appointment_date', '>=', now()->toDateString());
+            })
+            ->orderBy('appointment_date')
+            ->get();
+
+        $previous = VeterinaryAppointment::with(['pet', 'requester'])
+            ->where('vet_id', $vetId)
+            ->where(function ($query) {
+                $query->whereIn('status', ['COMPLETED', 'CANCELLED'])
+                      ->orWhereDate('appointment_date', '<', now()->toDateString());
+            })
+            ->latest('appointment_date')
+            ->get();
+
+        return view('dashboards.vet.appointments', compact('upcoming', 'previous'));
+    }
+
+    public function updateAppointmentStatus(\Illuminate\Http\Request $request, VeterinaryAppointment $appointment)
+    {
+        $validated = $request->validate([
+            'status' => 'required|in:SCHEDULED,COMPLETED,CANCELLED',
+            'notes' => 'nullable|string|max:500',
+        ]);
+
+        $appointment->update($validated);
+
+        return redirect()->back()->with('success', 'Appointment status updated successfully!');
     }
 }

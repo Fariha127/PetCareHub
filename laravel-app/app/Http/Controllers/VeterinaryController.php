@@ -30,8 +30,8 @@ class VeterinaryController extends Controller
         }
 
         $data = $request->validate([
-            'pet_id' => ['required', 'integer', 'exists:pets,pet_id'],
-            'vet_id' => ['required', 'integer', Rule::exists('users', 'user_id')->where('role', 'VETERINARIAN')],
+            'pet_id' => ['required', 'string', 'exists:pets,pet_id'],
+            'vet_id' => ['required', 'string', Rule::exists('users', 'user_id')->where('role', 'VETERINARIAN')],
             'appointment_date' => ['required', 'date'],
             'reason' => ['required', 'string', 'max:255'],
         ]);
@@ -51,8 +51,8 @@ class VeterinaryController extends Controller
     public function storeRecord(Request $request)
     {
         MedicalRecord::create($request->validate([
-            'pet_id' => ['required', 'integer', 'exists:pets,pet_id'],
-            'vet_id' => ['required', 'integer', Rule::exists('users', 'user_id')->where('role', 'VETERINARIAN')],
+            'pet_id' => ['required', 'string', 'exists:pets,pet_id'],
+            'vet_id' => ['required', 'string', Rule::exists('users', 'user_id')->where('role', 'VETERINARIAN')],
             'diagnosis' => ['required', 'string', 'max:255'],
             'treatment' => ['required', 'string', 'max:255'],
             'vaccination_date' => ['nullable', 'date'],
