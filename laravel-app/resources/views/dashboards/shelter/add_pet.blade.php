@@ -56,6 +56,14 @@
                     <label class="form-label text-secondary small fw-bold">Photo URL</label>
                     <input type="url" name="image_path" class="form-control" placeholder="https://images.unsplash.com/...">
                 </div>
+                <div class="col-md-6">
+                    <label class="form-label text-secondary small fw-bold">Food Preference</label>
+                    <input name="food_preference" class="form-control" placeholder="e.g. Dry kibble, chicken breast">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label text-secondary small fw-bold">Distinct Habit</label>
+                    <input name="distinct_habit" class="form-control" placeholder="e.g. Loves running, fetches tennis balls">
+                </div>
                 <div class="col-12">
                     <label class="form-label text-secondary small fw-bold">Description & Biography</label>
                     <textarea name="description" class="form-control" rows="4" placeholder="Tell us more about the pet's temperament, health status, and adoption needs..."></textarea>

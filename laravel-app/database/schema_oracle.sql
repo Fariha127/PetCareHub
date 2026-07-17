@@ -23,6 +23,8 @@ CREATE TABLE pets (
     health_condition VARCHAR2(255),
     adoption_status VARCHAR2(20) DEFAULT 'AVAILABLE' NOT NULL,
     image_path VARCHAR2(255),
+    food_preference VARCHAR2(255),
+    distinct_habit VARCHAR2(255),
     created_at DATE DEFAULT SYSDATE,
     updated_at DATE DEFAULT SYSDATE,
     CONSTRAINT chk_pet_gender CHECK (gender IN ('MALE', 'FEMALE', 'UNKNOWN')),
@@ -119,7 +121,9 @@ SELECT
     vaccination_status,
     health_condition,
     adoption_status,
-    image_path
+    image_path,
+    food_preference,
+    distinct_habit
 FROM pets;
 
 CREATE OR REPLACE VIEW vw_shelter_occupancy AS

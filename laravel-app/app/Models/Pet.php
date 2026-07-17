@@ -37,6 +37,8 @@ class Pet extends Model
         'health_condition',
         'adoption_status',
         'image_path',
+        'food_preference',
+        'distinct_habit',
     ];
 
     public function adoptionRequests()

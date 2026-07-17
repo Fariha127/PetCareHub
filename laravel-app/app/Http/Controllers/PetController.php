@@ -69,6 +69,8 @@ class PetController extends Controller
             'health_condition' => ['nullable', 'string'],
             'adoption_status' => ['nullable', 'string'],
             'image_path' => ['nullable', 'string'],
+            'food_preference' => ['nullable', 'string', 'max:255'],
+            'distinct_habit' => ['nullable', 'string', 'max:255'],
         ]);
 
         if (empty($data['adoption_status'])) {
@@ -92,6 +94,8 @@ class PetController extends Controller
             'health_condition' => ['nullable', 'string'],
             'adoption_status' => ['required', 'string'],
             'image_path' => ['nullable', 'string'],
+            'food_preference' => ['nullable', 'string', 'max:255'],
+            'distinct_habit' => ['nullable', 'string', 'max:255'],
         ]);
 
         $pet->update($data);

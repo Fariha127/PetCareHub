@@ -20,6 +20,8 @@ return new class extends Migration
             $table->string('health_condition')->nullable();
             $table->string('adoption_status', 20)->default('AVAILABLE');
             $table->string('image_path')->nullable();
+            $table->string('food_preference', 255)->nullable();
+            $table->string('distinct_habit', 255)->nullable();
             $table->timestamps();
         });
     }

@@ -19,6 +19,8 @@
                 <div class="col-sm-6"><strong>Vaccination:</strong> {{ $pet->vaccination_status }}</div>
                 <div class="col-sm-6"><strong>Status:</strong> {{ $pet->adoption_status }}</div>
                 <div class="col-12"><strong>Health Condition:</strong> {{ $pet->health_condition ?: 'No record provided' }}</div>
+                <div class="col-sm-6"><strong>Food Preference:</strong> {{ $pet->food_preference ?: 'None' }}</div>
+                <div class="col-sm-6"><strong>Distinct Habit:</strong> {{ $pet->distinct_habit ?: 'None' }}</div>
             </div>
 
             <hr class="my-4">

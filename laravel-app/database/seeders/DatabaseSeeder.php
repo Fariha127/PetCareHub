@@ -49,6 +49,8 @@ class DatabaseSeeder extends Seeder
             'health_condition' => 'Healthy and active',
             'adoption_status' => 'PENDING',
             'image_path' => 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=900&q=80',
+            'food_preference' => 'Premium dry kibble, chicken treats',
+            'distinct_habit' => 'Loves catching frisbees and playing fetch',
         ]);
 
         $milo = Pet::updateOrCreate(['pet_name' => 'Milo'], [
@@ -60,6 +62,8 @@ class DatabaseSeeder extends Seeder
             'health_condition' => 'Needs next vaccine next month',
             'adoption_status' => 'AVAILABLE',
             'image_path' => 'https://images.unsplash.com/photo-1519052537078-e6302a4968d4?auto=format&fit=crop&w=900&q=80',
+            'food_preference' => 'Wet canned food (tuna), fresh water',
+            'distinct_habit' => 'Loves sleeping in empty cardboard boxes',
         ]);
 
         Pet::updateOrCreate(['pet_name' => 'Coco'], [
@@ -71,6 +75,8 @@ class DatabaseSeeder extends Seeder
             'health_condition' => 'Under observation',
             'adoption_status' => 'AVAILABLE',
             'image_path' => 'https://images.unsplash.com/photo-1585110396000-c9ffd4e4b308?auto=format&fit=crop&w=900&q=80',
+            'food_preference' => 'Fresh alfalfa hay, carrots, leafy greens',
+            'distinct_habit' => 'Hops around excitedly when someone approaches',
         ]);
 
         AdoptionRequest::firstOrCreate([
