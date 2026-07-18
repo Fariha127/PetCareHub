@@ -5,7 +5,10 @@
     <div class="col-lg-10">
         <div class="row g-4 align-items-stretch">
             <div class="col-lg-5">
-                <div class="hero-panel p-4 p-lg-5 h-100">
+                <div class="hero-panel p-4 p-lg-5 h-100 d-flex flex-column justify-content-center">
+                    <div class="mb-4">
+                        <img src="{{ asset('images/logo.png') }}" alt="Logo" style="height: 64px; width: auto;">
+                    </div>
                     <div class="section-title mb-2">New account</div>
                     <h1 class="display-6 fw-bold mb-3">Join the PetCareHub workspace</h1>
                     <p class="text-secondary mb-4">Create an adopter account to request adoptions and book veterinary appointments.</p>

@@ -139,7 +139,10 @@
 <body>
 <nav class="navbar navbar-expand-lg sticky-top border-bottom">
     <div class="container py-2">
-        <a class="navbar-brand fw-bold text-success" href="{{ route('home') }}">PetCareHub</a>
+        <a class="navbar-brand fw-bold text-success d-flex align-items-center gap-2" href="{{ route('home') }}">
+            <img src="{{ asset('images/logo.png') }}" alt="Logo" style="height: 28px; width: auto;">
+            PetCareHub
+        </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navLinks">
             <span class="navbar-toggler-icon"></span>
         </button>

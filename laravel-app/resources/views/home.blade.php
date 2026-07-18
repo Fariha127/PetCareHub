@@ -4,7 +4,10 @@
 <div class="hero-panel p-4 p-lg-5 mb-4">
     <div class="row g-4 align-items-center">
         <div class="col-lg-7">
-            <div class="section-title mb-2">Pet Adoption & Veterinary Care Management</div>
+            <div class="d-flex align-items-center gap-3 mb-3">
+                <img src="{{ asset('images/logo.png') }}" alt="Logo" style="height: 48px; width: auto;">
+                <div class="section-title mb-0">Pet Adoption & Veterinary Care Management</div>
+            </div>
             <h1 class="display-5 fw-bold">Manage pet adoption, shelter operations, and veterinary records for one large shelter.</h1>
             <p class="lead mt-3 text-secondary">PetCareHub is designed for Oracle SQL, relational modeling, and course-level reporting with a clean Bootstrap interface.</p>
             <div class="d-flex gap-2 flex-wrap mt-4">

@@ -126,11 +126,12 @@ class DatabaseSeeder extends Seeder
             'vaccination_status' => 'NOT_VACCINATED',
             'health_condition' => 'Calm and quiet',
             'adoption_status' => 'AVAILABLE',
-            'image_path' => 'https://images.unsplash.com/photo-1533738363-b7f9aef128ce?auto=format&fit=crop&w=900&q=80',
+            'image_path' => 'https://plus.unsplash.com/premium_photo-1677545183884-421157b2da02?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
             'food_preference' => 'Grain-free dry food, salmon treats',
             'distinct_habit' => 'Loves to sit by the window and watch birds all day',
         ]);
 
+    
         AdoptionRequest::firstOrCreate([
             'user_id' => $adopter->user_id,
             'pet_id' => $luna->pet_id,
