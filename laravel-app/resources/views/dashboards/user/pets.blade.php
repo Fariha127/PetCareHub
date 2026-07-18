@@ -34,7 +34,7 @@
                             </p>
                             
                             <div class="mt-auto">
-                                <a href="{{ route('pets.show', $pet) }}" class="btn btn-outline-success btn-sm w-100">View Medical History</a>
+                                <a href="{{ route('pets.show', $pet) }}" class="btn btn-outline-success btn-sm w-100">View Details</a>
                             </div>
                         </div>
                     </div>

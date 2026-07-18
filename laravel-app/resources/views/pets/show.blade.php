@@ -39,7 +39,12 @@
 </div>
 
 <div class="row g-4 mt-1">
-    <div class="col-lg-6">
+    @php
+        $showAdoptions = auth()->check() && in_array(auth()->user()->role, ['SHELTER_STAFF', 'ADMIN']);
+        $medicalColClass = $showAdoptions ? 'col-lg-6' : 'col-12';
+    @endphp
+
+    <div class="{{ $medicalColClass }}">
         <div class="content-card p-4">
             <h2 class="h5">Medical History</h2>
             <div class="table-responsive">
@@ -60,26 +65,29 @@
             </div>
         </div>
     </div>
-    <div class="col-lg-6">
-        <div class="content-card p-4">
-            <h2 class="h5">Adoption Requests</h2>
-            <div class="table-responsive">
-                <table class="table align-middle mb-0">
-                    <thead><tr><th>User</th><th>Date</th><th>Status</th></tr></thead>
-                    <tbody>
-                    @forelse($pet->adoptionRequests as $request)
-                        <tr>
-                            <td>{{ $request->user->full_name ?? 'N/A' }}</td>
-                            <td>{{ optional($request->request_date)->format('Y-m-d') }}</td>
-                            <td>{{ $request->status }}</td>
-                        </tr>
-                    @empty
-                        <tr><td colspan="3" class="text-secondary">No adoption requests yet.</td></tr>
-                    @endforelse
-                    </tbody>
-                </table>
+
+    @if($showAdoptions)
+        <div class="col-lg-6">
+            <div class="content-card p-4">
+                <h2 class="h5">Adoption Requests</h2>
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0">
+                        <thead><tr><th>User</th><th>Date</th><th>Status</th></tr></thead>
+                        <tbody>
+                        @forelse($pet->adoptionRequests as $request)
+                            <tr>
+                                <td>{{ $request->user->full_name ?? 'N/A' }}</td>
+                                <td>{{ optional($request->request_date)->format('Y-m-d') }}</td>
+                                <td>{{ $request->status }}</td>
+                            </tr>
+                        @empty
+                            <tr><td colspan="3" class="text-secondary">No adoption requests yet.</td></tr>
+                        @endforelse
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
-    </div>
+    @endif
 </div>
 @endsection
