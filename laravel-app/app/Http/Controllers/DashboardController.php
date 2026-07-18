@@ -208,4 +208,28 @@ class DashboardController extends Controller
 
         return redirect()->back()->with('success', 'Appointment status updated successfully!');
     }
+
+    public function changePasswordView()
+    {
+        return view('dashboards.change_password');
+    }
+
+    public function updatePassword(\Illuminate\Http\Request $request)
+    {
+        $request->validate([
+            'current_password' => 'required',
+            'password' => 'required|min:6|confirmed|different:current_password',
+        ]);
+
+        $user = auth()->user();
+
+        if (!\Illuminate\Support\Facades\Hash::check($request->current_password, $user->password)) {
+            return back()->withErrors(['current_password' => 'The provided current password does not match our records.']);
+        }
+
+        $user->password = \Illuminate\Support\Facades\Hash::make($request->password);
+        $user->save();
+
+        return back()->with('success', 'Password updated successfully!');
+    }
 }

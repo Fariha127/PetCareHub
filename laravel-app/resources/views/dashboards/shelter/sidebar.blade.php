@@ -21,6 +21,10 @@
            class="btn btn-link text-decoration-none text-white text-start p-2 rounded-2 {{ request()->routeIs('dashboard.shelter.pets') ? 'bg-success fw-bold shadow-sm' : 'opacity-75' }}">
            Pets Summaries
         </a>
+        <a href="{{ route('dashboard.password') }}" 
+           class="btn btn-link text-decoration-none text-white text-start p-2 rounded-2 {{ request()->routeIs('dashboard.password') ? 'bg-success fw-bold shadow-sm' : 'opacity-75' }}">
+           Change Password
+        </a>
         <hr class="border-light opacity-25 my-3">
         <form action="{{ route('logout') }}" method="POST" class="mt-2">
             @csrf

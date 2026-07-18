@@ -58,3 +58,8 @@ Route::middleware(['auth', 'role:VETERINARIAN,ADMIN'])->group(function () {
 Route::middleware(['auth', 'role:ADMIN'])->group(function () {
     Route::get('/dashboard/admin', [DashboardController::class, 'shelterDashboard'])->name('dashboard.admin');
 });
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/dashboard/password', [DashboardController::class, 'changePasswordView'])->name('dashboard.password');
+    Route::post('/dashboard/password', [DashboardController::class, 'updatePassword'])->name('dashboard.password.update');
+});

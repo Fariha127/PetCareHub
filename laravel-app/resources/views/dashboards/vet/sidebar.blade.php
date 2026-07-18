@@ -13,6 +13,10 @@
            class="btn btn-link text-decoration-none text-white text-start p-2 rounded-2 {{ request()->routeIs('dashboard.vet.appointments') ? 'bg-success fw-bold shadow-sm' : 'opacity-75' }}">
            Appointments
         </a>
+        <a href="{{ route('dashboard.password') }}" 
+           class="btn btn-link text-decoration-none text-white text-start p-2 rounded-2 {{ request()->routeIs('dashboard.password') ? 'bg-success fw-bold shadow-sm' : 'opacity-75' }}">
+           Change Password
+        </a>
         <hr class="border-light opacity-25 my-3">
         <a href="{{ route('pets.index') }}" 
            class="btn btn-link text-decoration-none text-white text-start p-2 rounded-2 opacity-75">
