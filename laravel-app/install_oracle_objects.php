@@ -8,14 +8,14 @@ if (!$conn) {
 echo "Connected successfully to Oracle Database.\n";
 
 $statements = [
-    // 1. Indexes
+    
     "CREATE INDEX idx_pets_species ON pets (species)",
     "CREATE INDEX idx_pets_breed ON pets (breed)",
     "CREATE INDEX idx_pets_status ON pets (adoption_status)",
     "CREATE INDEX idx_requests_status ON adoption_requests (status)",
     "CREATE INDEX idx_records_vet ON medical_records (vet_id)",
 
-    // 2. Views
+    
     "CREATE OR REPLACE VIEW vw_pet_listing AS
     SELECT
         pet_id,
@@ -51,7 +51,7 @@ $statements = [
     FROM pets
     GROUP BY vaccination_status",
 
-    // 3. Triggers
+    
     "CREATE OR REPLACE TRIGGER trg_adoption_status_update
     AFTER UPDATE OF status ON adoption_requests
     FOR EACH ROW
@@ -108,7 +108,7 @@ $statements = [
         END IF;
     END;",
 
-    // 4. Stored Procedures
+    
     "CREATE OR REPLACE PROCEDURE sp_process_adoption_request (
         p_request_id IN VARCHAR2,
         p_status IN VARCHAR2,
@@ -167,7 +167,7 @@ $statements = [
         WHERE vaccination_date >= TRUNC(SYSDATE, 'MM');
     END;",
 
-    // 5. Custom Functions (New)
+   
     "CREATE OR REPLACE FUNCTION fn_get_pet_age_group(p_age IN NUMBER)
     RETURN VARCHAR2 IS
     BEGIN
@@ -192,7 +192,7 @@ $statements = [
         RETURN v_count;
     END;",
 
-    // 6. Loop-based procedures (New)
+    
     "CREATE OR REPLACE PROCEDURE sp_print_vaccination_schedule AS
     BEGIN
         FOR r_pet IN (
