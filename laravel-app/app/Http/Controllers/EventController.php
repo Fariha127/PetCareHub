@@ -57,7 +57,7 @@ class EventController extends Controller
             );
             return redirect()->back()->with('success', 'Your response has been saved.');
         } catch (\Illuminate\Database\QueryException $e) {
-            // Check for Oracle ORA-20003 past event trigger exception
+            
             if (str_contains($e->getMessage(), '20003')) {
                 return redirect()->back()->with('error', 'Cannot enroll in a past event.');
             }

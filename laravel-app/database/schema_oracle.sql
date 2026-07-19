@@ -147,19 +147,4 @@ SELECT
 FROM pets
 GROUP BY vaccination_status;
 
-CREATE OR REPLACE TRIGGER trg_check_event_date
-BEFORE INSERT ON event_enrollments
-FOR EACH ROW
-DECLARE
-    v_event_date DATE;
-BEGIN
-    SELECT event_date INTO v_event_date
-    FROM events
-    WHERE event_id = :NEW.event_id;
-
-    IF v_event_date < TRUNC(SYSDATE) THEN
-        RAISE_APPLICATION_ERROR(-20003, 'Cannot enroll in a past event.');
-    END IF;
-END;
-/
 
