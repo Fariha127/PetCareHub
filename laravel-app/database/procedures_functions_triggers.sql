@@ -11,40 +11,6 @@ END;
 /
 
 
-CREATE OR REPLACE TRIGGER trg_appointment_vet_role
-BEFORE INSERT OR UPDATE OF vet_id ON veterinary_appointments
-FOR EACH ROW
-DECLARE
-    v_role users.role%TYPE;
-BEGIN
-    SELECT role INTO v_role
-    FROM users
-    WHERE user_id = :NEW.vet_id;
-
-    IF v_role <> 'VETERINARIAN' THEN
-        RAISE_APPLICATION_ERROR(-20001, 'vet_id must reference a veterinarian account.');
-    END IF;
-END;
-/
-
-
-CREATE OR REPLACE TRIGGER trg_medical_record_vet_role
-BEFORE INSERT OR UPDATE OF vet_id ON medical_records
-FOR EACH ROW
-DECLARE
-    v_role users.role%TYPE;
-BEGIN
-    SELECT role INTO v_role
-    FROM users
-    WHERE user_id = :NEW.vet_id;
-
-    IF v_role <> 'VETERINARIAN' THEN
-        RAISE_APPLICATION_ERROR(-20002, 'vet_id must reference a veterinarian account.');
-    END IF;
-END;
-/
-
-
 CREATE OR REPLACE TRIGGER trg_check_event_date
 BEFORE INSERT ON event_enrollments
 FOR EACH ROW

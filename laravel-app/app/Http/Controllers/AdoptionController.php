@@ -29,7 +29,7 @@ class AdoptionController extends Controller
     public function approve(AdoptionRequest $adoptionRequest)
     {
         DB::transaction(function () use ($adoptionRequest) {
-            // Call the database stored procedure to approve this request
+    
             DB::statement("BEGIN sp_process_adoption_request(:request_id, :status, :reviewer_id, :remarks); END;", [
                 'request_id' => $adoptionRequest->request_id,
                 'status' => 'APPROVED',
@@ -37,10 +37,7 @@ class AdoptionController extends Controller
                 'remarks' => $adoptionRequest->remarks ?? '',
             ]);
 
-            // Note: The database trigger 'trg_adoption_status_update' automatically
-            // updates the pet's adoption_status to 'ADOPTED' when this request is APPROVED.
-
-            // Fetch other pending requests to reject them
+            
             $pendingRequests = AdoptionRequest::where('pet_id', $adoptionRequest->pet_id)
                 ->where('request_id', '!=', $adoptionRequest->request_id)
                 ->where('status', 'PENDING')
