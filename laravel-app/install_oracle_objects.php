@@ -36,14 +36,6 @@ $statements = [
     FROM pets
     WHERE adoption_status <> 'ADOPTED'",
 
-    "CREATE OR REPLACE VIEW vw_dashboard_summary AS
-    SELECT
-        (SELECT COUNT(*) FROM pets) AS total_pets,
-        (SELECT COUNT(*) FROM pets WHERE adoption_status = 'ADOPTED') AS total_adopted_pets,
-        (SELECT COUNT(*) FROM adoption_requests WHERE status = 'PENDING') AS pending_requests,
-        (SELECT COUNT(*) FROM medical_records WHERE vaccination_date >= TRUNC(SYSDATE, 'MM')) AS vaccinations_this_month
-    FROM dual",
-
     "CREATE OR REPLACE VIEW vw_vaccination_statistics AS
     SELECT
         vaccination_status,
@@ -150,21 +142,6 @@ $statements = [
               AND EXTRACT(MONTH FROM ar.request_date) = p_month
               AND EXTRACT(YEAR FROM ar.request_date) = p_year
             ORDER BY ar.request_date DESC;
-    END;",
-
-    "CREATE OR REPLACE PROCEDURE sp_dashboard_metrics (
-        p_total_pets OUT NUMBER,
-        p_total_adopted OUT NUMBER,
-        p_pending_requests OUT NUMBER,
-        p_vaccinations_this_month OUT NUMBER
-    ) AS
-    BEGIN
-        SELECT COUNT(*) INTO p_total_pets FROM pets;
-        SELECT COUNT(*) INTO p_total_adopted FROM pets WHERE adoption_status = 'ADOPTED';
-        SELECT COUNT(*) INTO p_pending_requests FROM adoption_requests WHERE status = 'PENDING';
-        SELECT COUNT(*) INTO p_vaccinations_this_month
-        FROM medical_records
-        WHERE vaccination_date >= TRUNC(SYSDATE, 'MM');
     END;",
 
    

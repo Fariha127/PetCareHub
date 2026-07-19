@@ -93,23 +93,6 @@ END;
 /
 
 
-CREATE OR REPLACE PROCEDURE sp_dashboard_metrics (
-    p_total_pets OUT NUMBER,
-    p_total_adopted OUT NUMBER,
-    p_pending_requests OUT NUMBER,
-    p_vaccinations_this_month OUT NUMBER
-) AS
-BEGIN
-    SELECT COUNT(*) INTO p_total_pets FROM pets;
-    SELECT COUNT(*) INTO p_total_adopted FROM pets WHERE adoption_status = 'ADOPTED';
-    SELECT COUNT(*) INTO p_pending_requests FROM adoption_requests WHERE status = 'PENDING';
-    SELECT COUNT(*) INTO p_vaccinations_this_month
-    FROM medical_records
-    WHERE vaccination_date >= TRUNC(SYSDATE, 'MM');
-END;
-/
-
-
 CREATE OR REPLACE FUNCTION fn_get_pet_age_group(p_age IN NUMBER)
 RETURN VARCHAR2 IS
 BEGIN

@@ -132,14 +132,6 @@ SELECT
 FROM pets
 WHERE adoption_status <> 'ADOPTED';
 
-CREATE OR REPLACE VIEW vw_dashboard_summary AS
-SELECT
-    (SELECT COUNT(*) FROM pets) AS total_pets,
-    (SELECT COUNT(*) FROM pets WHERE adoption_status = 'ADOPTED') AS total_adopted_pets,
-    (SELECT COUNT(*) FROM adoption_requests WHERE status = 'PENDING') AS pending_requests,
-    (SELECT COUNT(*) FROM medical_records WHERE vaccination_date >= TRUNC(SYSDATE, 'MM')) AS vaccinations_this_month
-FROM dual;
-
 CREATE OR REPLACE VIEW vw_vaccination_statistics AS
 SELECT
     vaccination_status,
