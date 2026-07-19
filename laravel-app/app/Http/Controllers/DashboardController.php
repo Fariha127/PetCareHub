@@ -14,7 +14,11 @@ class DashboardController extends Controller
 
     public function userDashboard()
     {
-        return view('dashboards.user.profile');
+        $userId = auth()->id();
+        $requestCountResult = \Illuminate\Support\Facades\DB::select("SELECT fn_get_adopter_request_count(:user_id) AS cnt FROM DUAL", ['user_id' => $userId]);
+        $requestCount = $requestCountResult[0]->cnt ?? 0;
+
+        return view('dashboards.user.profile', compact('requestCount'));
     }
 
     public function updateProfile(\Illuminate\Http\Request $request)

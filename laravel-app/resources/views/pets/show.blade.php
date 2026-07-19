@@ -14,7 +14,7 @@
             <p class="text-secondary mb-4">{{ $pet->species }} | {{ $pet->breed }}</p>
 
             <div class="row g-3">
-                <div class="col-sm-6"><strong>Age:</strong> {{ $pet->age }}</div>
+                <div class="col-sm-6"><strong>Age:</strong> {{ $pet->age }} years @if(isset($ageGroup)) ({{ $ageGroup }}) @endif</div>
                 <div class="col-sm-6"><strong>Gender:</strong> {{ $pet->gender }}</div>
                 <div class="col-sm-6"><strong>Vaccination:</strong> {{ $pet->vaccination_status }}</div>
                 <div class="col-sm-6"><strong>Status:</strong> {{ $pet->adoption_status }}</div>

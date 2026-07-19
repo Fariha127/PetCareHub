@@ -54,7 +54,10 @@ class PetController extends Controller
     {
         $pet->load(['adoptionRequests.user', 'medicalRecords.vet']);
 
-        return view('pets.show', compact('pet'));
+        $ageGroupResult = \Illuminate\Support\Facades\DB::select("SELECT fn_get_pet_age_group(:age) AS age_group FROM DUAL", ['age' => $pet->age]);
+        $ageGroup = $ageGroupResult[0]->age_group ?? 'Unknown';
+
+        return view('pets.show', compact('pet', 'ageGroup'));
     }
 
     public function store(Request $request)

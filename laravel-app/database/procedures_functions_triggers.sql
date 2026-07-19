@@ -143,11 +143,10 @@ CREATE OR REPLACE PROCEDURE sp_simulate_occupancy_growth(p_iterations IN NUMBER)
     v_capacity NUMBER;
 BEGIN
     SELECT COUNT(*) INTO v_capacity FROM pets WHERE adoption_status <> 'ADOPTED';
-    DBMS_OUTPUT.PUT_LINE('Initial Shelter Occupancy: ' || v_capacity);
+    
     
     WHILE v_counter <= p_iterations LOOP
         v_capacity := v_capacity + 2;
-        DBMS_OUTPUT.PUT_LINE('Simulation Week ' || v_counter || ': Projected Occupancy = ' || v_capacity);
         v_counter := v_counter + 1;
     END LOOP;
 END;

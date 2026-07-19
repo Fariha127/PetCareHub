@@ -24,7 +24,12 @@
                         @endif
                     </div>
                     <h3 class="h5 fw-bold mb-1">{{ auth()->user()->full_name }}</h3>
-                    <span class="badge badge-soft px-3 py-2 rounded-pill">{{ auth()->user()->role }}</span>
+                    <span class="badge badge-soft px-3 py-2 rounded-pill mb-2">{{ auth()->user()->role }}</span>
+                    @if(isset($requestCount))
+                        <div class="mt-2 text-secondary small">
+                            <strong>Total Requests:</strong> {{ $requestCount }}
+                        </div>
+                    @endif
                 </div>
             </div>
 

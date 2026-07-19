@@ -38,23 +38,31 @@ class AdoptionController extends Controller
     public function approve(AdoptionRequest $adoptionRequest)
     {
         DB::transaction(function () use ($adoptionRequest) {
-            $adoptionRequest->update([
+            // Call the database stored procedure to approve this request
+            DB::statement("BEGIN sp_process_adoption_request(:request_id, :status, :reviewer_id, :remarks); END;", [
+                'request_id' => $adoptionRequest->request_id,
                 'status' => 'APPROVED',
-                'reviewed_by' => auth()->id(),
-                'decision_date' => now(),
+                'reviewer_id' => auth()->id(),
+                'remarks' => $adoptionRequest->remarks ?? '',
             ]);
 
-            $adoptionRequest->pet()->update(['adoption_status' => 'ADOPTED']);
+            // Note: The database trigger 'trg_adoption_status_update' automatically
+            // updates the pet's adoption_status to 'ADOPTED' when this request is APPROVED.
 
-            AdoptionRequest::where('pet_id', $adoptionRequest->pet_id)
+            // Fetch other pending requests to reject them
+            $pendingRequests = AdoptionRequest::where('pet_id', $adoptionRequest->pet_id)
                 ->where('request_id', '!=', $adoptionRequest->request_id)
                 ->where('status', 'PENDING')
-                ->update([
+                ->get();
+
+            foreach ($pendingRequests as $pending) {
+                DB::statement("BEGIN sp_process_adoption_request(:request_id, :status, :reviewer_id, :remarks); END;", [
+                    'request_id' => $pending->request_id,
                     'status' => 'REJECTED',
-                    'reviewed_by' => auth()->id(),
-                    'decision_date' => now(),
+                    'reviewer_id' => auth()->id(),
                     'remarks' => 'Another adoption request was approved.',
                 ]);
+            }
         });
 
         return back()->with('success', 'Adoption request approved.');
@@ -63,10 +71,12 @@ class AdoptionController extends Controller
     public function reject(AdoptionRequest $adoptionRequest)
     {
         DB::transaction(function () use ($adoptionRequest) {
-            $adoptionRequest->update([
+            
+            DB::statement("BEGIN sp_process_adoption_request(:request_id, :status, :reviewer_id, :remarks); END;", [
+                'request_id' => $adoptionRequest->request_id,
                 'status' => 'REJECTED',
-                'reviewed_by' => auth()->id(),
-                'decision_date' => now(),
+                'reviewer_id' => auth()->id(),
+                'remarks' => 'Rejected by shelter staff.',
             ]);
 
             $hasPending = AdoptionRequest::where('pet_id', $adoptionRequest->pet_id)
