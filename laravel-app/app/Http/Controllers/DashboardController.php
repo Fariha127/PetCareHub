@@ -208,7 +208,14 @@ class DashboardController extends Controller
             'notes' => 'nullable|string|max:500',
         ]);
 
-        $appointment->update($validated);
+        \Illuminate\Support\Facades\DB::statement(
+            "BEGIN sp_update_appointment_status(:appointment_id, :status, :notes); END;",
+            [
+                'appointment_id' => $appointment->appointment_id,
+                'status' => $validated['status'],
+                'notes' => $validated['notes'] ?? null,
+            ]
+        );
 
         return redirect()->back()->with('success', 'Appointment status updated successfully!');
     }

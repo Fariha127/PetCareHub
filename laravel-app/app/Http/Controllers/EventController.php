@@ -17,9 +17,16 @@ class EventController extends Controller
             'location' => 'required|string|max:255',
         ]);
 
-        $validated['created_by'] = auth()->id();
-
-        Event::create($validated);
+        \Illuminate\Support\Facades\DB::statement(
+            "BEGIN sp_create_event(:title, :description, :event_date, :location, :created_by); END;",
+            [
+                'title' => $validated['title'],
+                'description' => $validated['description'],
+                'event_date' => $validated['event_date'],
+                'location' => $validated['location'],
+                'created_by' => auth()->id(),
+            ]
+        );
 
         return redirect()->back()->with('success', 'Event created successfully!');
     }
@@ -51,9 +58,13 @@ class EventController extends Controller
         }
 
         try {
-            EventEnrollment::updateOrCreate(
-                ['event_id' => $event->event_id, 'user_id' => $userId],
-                ['status' => $status]
+            \Illuminate\Support\Facades\DB::statement(
+                "BEGIN sp_enroll_event(:event_id, :user_id, :status); END;",
+                [
+                    'event_id' => $event->event_id,
+                    'user_id' => $userId,
+                    'status' => $status,
+                ]
             );
             return redirect()->back()->with('success', 'Your response has been saved.');
         } catch (\Illuminate\Database\QueryException $e) {

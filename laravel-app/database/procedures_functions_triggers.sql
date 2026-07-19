@@ -1,4 +1,3 @@
-
 CREATE OR REPLACE TRIGGER trg_adoption_status_update
 AFTER UPDATE OF status ON adoption_requests
 FOR EACH ROW
@@ -46,6 +45,23 @@ END;
 /
 
 
+CREATE OR REPLACE TRIGGER trg_check_event_date
+BEFORE INSERT ON event_enrollments
+FOR EACH ROW
+DECLARE
+    v_event_date DATE;
+BEGIN
+    SELECT event_date INTO v_event_date
+    FROM events
+    WHERE event_id = :NEW.event_id;
+
+    IF v_event_date < TRUNC(SYSDATE) THEN
+        RAISE_APPLICATION_ERROR(-20003, 'Cannot enroll in a past event.');
+    END IF;
+END;
+/
+
+
 CREATE OR REPLACE PROCEDURE sp_process_adoption_request (
     p_request_id IN VARCHAR2,
     p_status IN VARCHAR2,
@@ -65,30 +81,251 @@ END;
 /
 
 
-CREATE OR REPLACE PROCEDURE sp_monthly_adoption_report (
-    p_month IN NUMBER,
-    p_year IN NUMBER,
-    p_result OUT SYS_REFCURSOR
+CREATE OR REPLACE PROCEDURE sp_create_adoption_request (
+    p_user_id IN VARCHAR2,
+    p_pet_id IN VARCHAR2
 ) AS
 BEGIN
-    OPEN p_result FOR
-        SELECT
-            ar.request_id,
-            ar.request_date,
-            u.full_name AS adopter_name,
-            p.pet_name,
-            p.species,
-            p.breed,
-            ar.status,
-            ar.decision_date,
-            ar.remarks
-        FROM adoption_requests ar
-        JOIN users u ON u.user_id = ar.user_id
-        JOIN pets p ON p.pet_id = ar.pet_id
-        WHERE ar.status = 'APPROVED'
-          AND EXTRACT(MONTH FROM ar.request_date) = p_month
-          AND EXTRACT(YEAR FROM ar.request_date) = p_year
-        ORDER BY ar.request_date DESC;
+    INSERT INTO adoption_requests (
+        user_id,
+        pet_id,
+        request_date,
+        status
+    ) VALUES (
+        p_user_id,
+        p_pet_id,
+        SYSDATE,
+        'PENDING'
+    );
+
+    UPDATE pets
+    SET adoption_status = 'PENDING',
+        updated_at = SYSDATE
+    WHERE pet_id = p_pet_id
+      AND adoption_status = 'AVAILABLE';
+    COMMIT;
+END;
+/
+
+
+CREATE OR REPLACE PROCEDURE sp_schedule_appointment (
+    p_pet_id IN VARCHAR2,
+    p_vet_id IN VARCHAR2,
+    p_requested_by IN VARCHAR2,
+    p_appointment_date_str IN VARCHAR2,
+    p_reason IN VARCHAR2
+) AS
+BEGIN
+    INSERT INTO veterinary_appointments (
+        pet_id,
+        vet_id,
+        requested_by,
+        appointment_date,
+        reason,
+        status
+    ) VALUES (
+        p_pet_id,
+        p_vet_id,
+        p_requested_by,
+        TO_DATE(p_appointment_date_str, 'YYYY-MM-DD'),
+        p_reason,
+        'SCHEDULED'
+    );
+    COMMIT;
+END;
+/
+
+
+CREATE OR REPLACE PROCEDURE sp_update_appointment_status (
+    p_appointment_id IN VARCHAR2,
+    p_status IN VARCHAR2,
+    p_notes IN VARCHAR2
+) AS
+BEGIN
+    UPDATE veterinary_appointments
+    SET status = p_status,
+        notes = p_notes,
+        updated_at = SYSDATE
+    WHERE appointment_id = p_appointment_id;
+    COMMIT;
+END;
+/
+
+
+CREATE OR REPLACE PROCEDURE sp_add_medical_record (
+    p_pet_id IN VARCHAR2,
+    p_vet_id IN VARCHAR2,
+    p_diagnosis IN VARCHAR2,
+    p_treatment IN VARCHAR2,
+    p_vaccination_date_str IN VARCHAR2,
+    p_next_vaccine_date_str IN VARCHAR2,
+    p_prescription IN VARCHAR2
+) AS
+BEGIN
+    INSERT INTO medical_records (
+        pet_id,
+        vet_id,
+        diagnosis,
+        treatment,
+        vaccination_date,
+        next_vaccine_date,
+        prescription
+    ) VALUES (
+        p_pet_id,
+        p_vet_id,
+        p_diagnosis,
+        p_treatment,
+        CASE WHEN p_vaccination_date_str IS NOT NULL THEN TO_DATE(p_vaccination_date_str, 'YYYY-MM-DD') ELSE NULL END,
+        CASE WHEN p_next_vaccine_date_str IS NOT NULL THEN TO_DATE(p_next_vaccine_date_str, 'YYYY-MM-DD') ELSE NULL END,
+        p_prescription
+    );
+    COMMIT;
+END;
+/
+
+
+CREATE OR REPLACE PROCEDURE sp_create_event (
+    p_title IN VARCHAR2,
+    p_description IN VARCHAR2,
+    p_event_date_str IN VARCHAR2,
+    p_location IN VARCHAR2,
+    p_created_by IN VARCHAR2
+) AS
+BEGIN
+    INSERT INTO events (
+        title,
+        description,
+        event_date,
+        location,
+        created_by
+    ) VALUES (
+        p_title,
+        p_description,
+        TO_DATE(p_event_date_str, 'YYYY-MM-DD'),
+        p_location,
+        p_created_by
+    );
+    COMMIT;
+END;
+/
+
+
+CREATE OR REPLACE PROCEDURE sp_enroll_event (
+    p_event_id IN VARCHAR2,
+    p_user_id IN VARCHAR2,
+    p_status IN VARCHAR2
+) AS
+    v_count NUMBER;
+BEGIN
+    SELECT COUNT(*) INTO v_count
+    FROM event_enrollments
+    WHERE event_id = p_event_id AND user_id = p_user_id;
+
+    IF v_count > 0 THEN
+        UPDATE event_enrollments
+        SET status = p_status,
+            updated_at = SYSDATE
+        WHERE event_id = p_event_id AND user_id = p_user_id;
+    ELSE
+        INSERT INTO event_enrollments (
+            event_id,
+            user_id,
+            status
+        ) VALUES (
+            p_event_id,
+            p_user_id,
+            p_status
+        );
+    END IF;
+    COMMIT;
+END;
+/
+
+
+CREATE OR REPLACE PROCEDURE sp_create_pet (
+    p_pet_name IN VARCHAR2,
+    p_species IN VARCHAR2,
+    p_breed IN VARCHAR2,
+    p_age IN NUMBER,
+    p_gender IN VARCHAR2,
+    p_vaccination_status IN VARCHAR2,
+    p_health_condition IN VARCHAR2,
+    p_adoption_status IN VARCHAR2,
+    p_image_path IN VARCHAR2,
+    p_food_preference IN VARCHAR2,
+    p_distinct_habit IN VARCHAR2
+) AS
+BEGIN
+    INSERT INTO pets (
+        pet_name,
+        species,
+        breed,
+        age,
+        gender,
+        vaccination_status,
+        health_condition,
+        adoption_status,
+        image_path,
+        food_preference,
+        distinct_habit
+    ) VALUES (
+        p_pet_name,
+        p_species,
+        p_breed,
+        p_age,
+        p_gender,
+        p_vaccination_status,
+        p_health_condition,
+        p_adoption_status,
+        p_image_path,
+        p_food_preference,
+        p_distinct_habit
+    );
+    COMMIT;
+END;
+/
+
+
+CREATE OR REPLACE PROCEDURE sp_update_pet (
+    p_pet_id IN VARCHAR2,
+    p_pet_name IN VARCHAR2,
+    p_species IN VARCHAR2,
+    p_breed IN VARCHAR2,
+    p_age IN NUMBER,
+    p_gender IN VARCHAR2,
+    p_vaccination_status IN VARCHAR2,
+    p_health_condition IN VARCHAR2,
+    p_adoption_status IN VARCHAR2,
+    p_image_path IN VARCHAR2,
+    p_food_preference IN VARCHAR2,
+    p_distinct_habit IN VARCHAR2
+) AS
+BEGIN
+    UPDATE pets
+    SET pet_name = p_pet_name,
+        species = p_species,
+        breed = p_breed,
+        age = p_age,
+        gender = p_gender,
+        vaccination_status = p_vaccination_status,
+        health_condition = p_health_condition,
+        adoption_status = p_adoption_status,
+        image_path = p_image_path,
+        food_preference = p_food_preference,
+        distinct_habit = p_distinct_habit,
+        updated_at = SYSDATE
+    WHERE pet_id = p_pet_id;
+    COMMIT;
+END;
+/
+
+
+CREATE OR REPLACE PROCEDURE sp_delete_pet (
+    p_pet_id IN VARCHAR2
+) AS
+BEGIN
+    DELETE FROM pets WHERE pet_id = p_pet_id;
+    COMMIT;
 END;
 /
 
@@ -117,54 +354,5 @@ BEGIN
     FROM adoption_requests
     WHERE user_id = p_user_id;
     RETURN v_count;
-END;
-/
-
-
-CREATE OR REPLACE PROCEDURE sp_print_vaccination_schedule AS
-BEGIN
-    FOR r_pet IN (
-        SELECT p.pet_name, mr.next_vaccine_date, u.full_name AS vet_name
-        FROM medical_records mr
-        JOIN pets p ON p.pet_id = mr.pet_id
-        JOIN users u ON u.user_id = mr.vet_id
-        WHERE mr.next_vaccine_date IS NOT NULL
-    ) LOOP
-        DBMS_OUTPUT.PUT_LINE('Pet: ' || r_pet.pet_name || 
-                             ' | Next Vaccine Due: ' || TO_CHAR(r_pet.next_vaccine_date, 'YYYY-MM-DD') || 
-                             ' | Vet: ' || r_pet.vet_name);
-    END LOOP;
-END;
-/
-
-
-CREATE OR REPLACE PROCEDURE sp_simulate_occupancy_growth(p_iterations IN NUMBER) AS
-    v_counter NUMBER := 1;
-    v_capacity NUMBER;
-BEGIN
-    SELECT COUNT(*) INTO v_capacity FROM pets WHERE adoption_status <> 'ADOPTED';
-    
-    
-    WHILE v_counter <= p_iterations LOOP
-        v_capacity := v_capacity + 2;
-        v_counter := v_counter + 1;
-    END LOOP;
-END;
-/
-
-
-CREATE OR REPLACE TRIGGER trg_check_event_date
-BEFORE INSERT ON event_enrollments
-FOR EACH ROW
-DECLARE
-    v_event_date DATE;
-BEGIN
-    SELECT event_date INTO v_event_date
-    FROM events
-    WHERE event_id = :NEW.event_id;
-
-    IF v_event_date < TRUNC(SYSDATE) THEN
-        RAISE_APPLICATION_ERROR(-20003, 'Cannot enroll in a past event.');
-    END IF;
 END;
 /

@@ -80,7 +80,22 @@ class PetController extends Controller
             $data['adoption_status'] = 'AVAILABLE';
         }
 
-        Pet::create($data);
+        \Illuminate\Support\Facades\DB::statement(
+            "BEGIN sp_create_pet(:pet_name, :species, :breed, :age, :gender, :vaccination_status, :health_condition, :adoption_status, :image_path, :food_preference, :distinct_habit); END;",
+            [
+                'pet_name' => $data['pet_name'],
+                'species' => $data['species'],
+                'breed' => $data['breed'] ?? null,
+                'age' => $data['age'],
+                'gender' => $data['gender'],
+                'vaccination_status' => $data['vaccination_status'],
+                'health_condition' => $data['health_condition'] ?? null,
+                'adoption_status' => $data['adoption_status'],
+                'image_path' => $data['image_path'] ?? null,
+                'food_preference' => $data['food_preference'] ?? null,
+                'distinct_habit' => $data['distinct_habit'] ?? null,
+            ]
+        );
 
         return back()->with('success', 'Pet saved successfully.');
     }
@@ -101,14 +116,33 @@ class PetController extends Controller
             'distinct_habit' => ['nullable', 'string', 'max:255'],
         ]);
 
-        $pet->update($data);
+        \Illuminate\Support\Facades\DB::statement(
+            "BEGIN sp_update_pet(:pet_id, :pet_name, :species, :breed, :age, :gender, :vaccination_status, :health_condition, :adoption_status, :image_path, :food_preference, :distinct_habit); END;",
+            [
+                'pet_id' => $pet->pet_id,
+                'pet_name' => $data['pet_name'],
+                'species' => $data['species'],
+                'breed' => $data['breed'] ?? null,
+                'age' => $data['age'],
+                'gender' => $data['gender'],
+                'vaccination_status' => $data['vaccination_status'],
+                'health_condition' => $data['health_condition'] ?? null,
+                'adoption_status' => $data['adoption_status'],
+                'image_path' => $data['image_path'] ?? null,
+                'food_preference' => $data['food_preference'] ?? null,
+                'distinct_habit' => $data['distinct_habit'] ?? null,
+            ]
+        );
 
         return back()->with('success', 'Pet updated successfully.');
     }
 
     public function destroy(Pet $pet)
     {
-        $pet->delete();
+        \Illuminate\Support\Facades\DB::statement(
+            "BEGIN sp_delete_pet(:pet_id); END;",
+            ['pet_id' => $pet->pet_id]
+        );
 
         return back()->with('success', 'Pet deleted successfully.');
     }

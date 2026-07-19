@@ -18,19 +18,10 @@ class AdoptionController extends Controller
             'pet_id' => ['required', 'string', 'exists:pets,pet_id'],
         ]);
 
-        DB::transaction(function () use ($data) {
-            AdoptionRequest::create([
-                'user_id' => auth()->id(),
-                'pet_id' => $data['pet_id'],
-                'request_date' => now(),
-                'status' => 'PENDING',
-            ]);
-
-            DB::table('pets')
-                ->where('pet_id', $data['pet_id'])
-                ->where('adoption_status', 'AVAILABLE')
-                ->update(['adoption_status' => 'PENDING', 'updated_at' => now()]);
-        });
+        DB::statement("BEGIN sp_create_adoption_request(:user_id, :pet_id); END;", [
+            'user_id' => auth()->id(),
+            'pet_id' => $data['pet_id'],
+        ]);
 
         return back()->with('success', 'Adoption request submitted.');
     }

@@ -36,21 +36,23 @@ class VeterinaryController extends Controller
             'reason' => ['required', 'string', 'max:255'],
         ]);
 
-        VeterinaryAppointment::create([
-            'pet_id' => $data['pet_id'],
-            'vet_id' => $data['vet_id'],
-            'requested_by' => auth()->id(),
-            'appointment_date' => $data['appointment_date'],
-            'reason' => $data['reason'],
-            'status' => 'SCHEDULED',
-        ]);
+        \Illuminate\Support\Facades\DB::statement(
+            "BEGIN sp_schedule_appointment(:pet_id, :vet_id, :requested_by, :appointment_date, :reason); END;",
+            [
+                'pet_id' => $data['pet_id'],
+                'vet_id' => $data['vet_id'],
+                'requested_by' => auth()->id(),
+                'appointment_date' => $data['appointment_date'],
+                'reason' => $data['reason'],
+            ]
+        );
 
         return back()->with('success', 'Appointment booked.');
     }
 
     public function storeRecord(Request $request)
     {
-        MedicalRecord::create($request->validate([
+        $data = $request->validate([
             'pet_id' => ['required', 'string', 'exists:pets,pet_id'],
             'vet_id' => ['required', 'string', Rule::exists('users', 'user_id')->where('role', 'VETERINARIAN')],
             'diagnosis' => ['required', 'string', 'max:255'],
@@ -58,7 +60,20 @@ class VeterinaryController extends Controller
             'vaccination_date' => ['nullable', 'date'],
             'next_vaccine_date' => ['nullable', 'date'],
             'prescription' => ['nullable', 'string', 'max:255'],
-        ]));
+        ]);
+
+        \Illuminate\Support\Facades\DB::statement(
+            "BEGIN sp_add_medical_record(:pet_id, :vet_id, :diagnosis, :treatment, :vaccination_date, :next_vaccine_date, :prescription); END;",
+            [
+                'pet_id' => $data['pet_id'],
+                'vet_id' => $data['vet_id'],
+                'diagnosis' => $data['diagnosis'],
+                'treatment' => $data['treatment'],
+                'vaccination_date' => $data['vaccination_date'] ?? null,
+                'next_vaccine_date' => $data['next_vaccine_date'] ?? null,
+                'prescription' => $data['prescription'] ?? null,
+            ]
+        );
 
         return back()->with('success', 'Medical record saved.');
     }
